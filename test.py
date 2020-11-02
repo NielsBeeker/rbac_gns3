@@ -182,5 +182,9 @@ if __name__ == "__main__":
     uvicorn.run(app)
 
 """
-dans ce cas de figure ou aucun objet/ instance ne possède elle meme de droit
+dans ce cas de figure ou aucun objet/ instance ne possède elle meme de droit, mon scéma déductif est le suivant
+
+1- check des scopes autorisé
+2- check du role (admin, editor, etc...)
+3- enfin check de la deny_list en rapport avec le user (if current URI is in user.deny_list then return exception)
 """
