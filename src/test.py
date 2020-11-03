@@ -151,7 +151,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username, get_user_scope_from_dn(form.username), get_user_role_from_db(form.username)},
+        data={"sub": user.username, "scopes": get_user_scope_from_db(form.username), "roles": get_user_role_from_db(form.username)},
         expires_delta=access_token_expires,
     )
     #TODO ici on peut load tout les informations en rapport avec les scopes ainsi que les rolesdu current user
@@ -187,4 +187,6 @@ dans ce cas de figure ou aucun objet/ instance ne possède elle meme de droit, m
 1- check des scopes autorisé
 2- check du role (admin, editor, etc...)
 3- enfin check de la deny_list en rapport avec le user (if current URI is in user.deny_list then return exception)
+deny list = Deny, 
+uri => ur l'api ça finis par create, use
 """

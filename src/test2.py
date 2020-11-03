@@ -278,6 +278,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+
+#union csur les paramatres
 @app.post("/authenticate", response_model=Token)
 async def authenticate(credentials: HTTPBasicCredentials):
 
