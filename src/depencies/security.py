@@ -11,14 +11,12 @@ from fastapi.security import (
     SecurityScopes,
 )
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
-from starlette.status import HTTP_401_UNAUTHORIZED
-from jwt import PyJWTError
-
 from src.models.Token import Token, TokenData
 from src.models.User import UserInDB, User
 from src.depencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
+from src.depencies.database import get_user
+from src.db.db_ressource import fake_user_db
 
 async def get_current_user(
     security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
@@ -42,7 +40,7 @@ async def get_current_user(
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(fake_user_db, username=token_data.username)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
