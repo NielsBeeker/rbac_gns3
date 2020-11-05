@@ -14,8 +14,8 @@ from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
 from src.models.Token import Token, TokenData
 from src.models.User import UserInDB, User
-from src.depencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
-from src.depencies.database import get_user
+from src.dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
+from src.dependencies.database import get_user
 from src.db.db_ressource import fake_user_db
 
 async def get_current_user(

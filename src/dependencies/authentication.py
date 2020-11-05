@@ -14,7 +14,7 @@ from jose import jwt
 from passlib.context import CryptContext
 
 
-from src.depencies.database import get_user
+from src.dependencies.database import get_user
 from src.models.User import UserInDB, User
 
 router = APIRouter()
@@ -40,7 +40,7 @@ def authenticate_user(fake_db, username: str, password: str) -> UserInDB:
     return user
 
 
-def create_access_token(*, data: dict, expires_delta: timedelta):
+def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
