@@ -14,11 +14,9 @@ src/models: Contains class to use for the different functions
 
 #Todo:
 
--verify if role fits with endpoint
+-create little database manager for local project
 
--verify if deny scopes fits with endpoint
-
--verify if scopes fits with endpoint
+-create database, table and fill it in local
 
 -get user scope from db
 
@@ -26,11 +24,18 @@ src/models: Contains class to use for the different functions
 
 -get user deny scope from db
 
--get usage from endpoint
+-add all user info to the token
 
 #Working:
 
+-verify if role fits with endpoint
+
+-verify if deny scopes fits with endpoint
+
 -verify if scopes fits with endpoint
+
+-get usage from endpoint
+
 
 #Done: 
 
@@ -42,7 +47,6 @@ src/models: Contains class to use for the different functions
 
 #Tested:
 
--verify if scopes fits with endpoint
 
 
 
