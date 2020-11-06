@@ -2,7 +2,7 @@
 This file is tempory, it will be replace by a db manager
 """
 
-from src.depencies.authentication import pwd_context
+from src.dependencies.authentication import pwd_context
 
 
 fake_user_db = {
@@ -16,5 +16,15 @@ fake_user_db = {
         "hashed_password": pwd_context.hash("secret"),
         "principals": ["user:alice", "role:user"],
     },
+}
+
+fake_role_db = {
+    "admin": ["all"],
+    "user": [, ""]
+}
+
+fake_group_db = {
+
+
 }
 

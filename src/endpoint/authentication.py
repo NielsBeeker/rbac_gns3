@@ -7,18 +7,18 @@ from fastapi.security import (
     SecurityScopes,
     HTTPBasicCredentials
 )
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from pydantic import BaseModel, ValidationError
-
+from starlette.requests import Request
 from src.models.Token import Token, TokenData
 from src.models.User import User, UserInDB
+from src.dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from src.db.db_ressource import fake_user_db
+
 
 router = APIRouter()
 
 @router.post("/v3/authenticate", response_model=Token)
 async def login_for_access_token(data: Union[HTTPBasicCredentials, OAuth2PasswordRequestForm] = Depends()):
-    user = authenticate_user(fake_db, data.username, data.password)
+    user = authenticate_user(fake_user_db, data.username, data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
