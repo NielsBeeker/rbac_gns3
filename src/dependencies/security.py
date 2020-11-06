@@ -92,6 +92,7 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
+    #verify scopes, roles, usage in this function
 
 
 #add endpoint parameter
@@ -112,7 +113,7 @@ async def get_current_user(endpoint_object: ObjectAcl,
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_scopes = payload.get("scopes", []) # TODO permet de récuprer les scopes du current user ces |||||||| ces informations soit dans le toen, soit dans le bdd
+        token_scopes = payload.get("scopes", []) # TODO permet de récuprer les scopes du current user ces |||||||| ces informations soit dans le token, soit dans le bdd
         token_role = payload.get("role", []) #TODO permet de recuperer les roles du current user
         deny_user_scope = payload.get("deny_user_scope")#TODO recup les deny scope du user
         token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role, deny_user_scope=deny_user_scope)
