@@ -97,12 +97,13 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
 
 #add endpoint parameter
 async def get_current_user(endpoint_object: ObjectAcl,
-    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
+    token: str = Depends(oauth2_scheme)
 ):
-    if security_scopes.scopes:
-        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' #a voir pour la modif
-    else:
-        authenticate_value = f"Bearer"
+    #if security_scopes.scopes:
+    #    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' #a voir pour la modif
+    #else:
+    #    authenticate_value = f"Bearer"
+    authenticate_value = f"Bearer"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -137,8 +138,9 @@ async def get_current_user(endpoint_object: ObjectAcl,
 
 #a la place de scope=["me"] mettre une fonction qui deduis les scopes required pour endpoint (scope=get_endpoint_scope)
 async def get_current_active_user(
-    current_user: User = Security(get_current_user, scopes=["me"])
+    endpoint_object: ObjectAcl
 ):
+    current_user: User = Depends(get_current_user(endpoint_object=endpoint_object))
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
