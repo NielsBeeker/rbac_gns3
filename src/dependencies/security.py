@@ -19,12 +19,27 @@ from src.models.ObjectAcl import ObjectAcl
 from src.dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 from src.dependencies.database import get_user
 from src.db.db_ressource import fake_user_db
+import re
 
 
 """
 return [] remplacé par get base acl
 #TODO dossier database
 """
+
+async def scope_matching(matching_scope: str, scope: str) -> bool:
+    sub_match = matching_scope.split("/")
+    sub_scope = scope.split("/")
+
+    for i in range(1, len(sub_match) - 1):
+        if sub_match[i] != sub_scope[i]:
+            if sub_scope[i] == "*":
+                return True
+            return False
+        if i == len(sub_match):
+            return False
+    return True
+
 async def get_base_acl_from_ressource(path: str):
     if "computes" in path:
         return []
@@ -36,9 +51,9 @@ async def get_base_acl_from_ressource(path: str):
         return []
     if "nodes" in path:
         return []
-    if "users" in path: # pour futur endpoint api par encore mis en place
+    if "users" in path: # pour futur endpoint api ,pas encore mis en place
         return []
-    if "groups" in path:
+    if "groups" in path:#
         return []
     if "snapshot" in path:
         return []
@@ -52,14 +67,17 @@ async def get_base_acl_from_ressource(path: str):
         return []
     return [] # controler
 
-    #return: [("role:amin", "all"), ("user:authenticated, "use")]
- # google doc : ressource with acls
+    #return: [("role:amdin", "all"), ("user:authenticated, "use")]
+    #voir le format de retour du tuple pour les droits
+ # google doc : ressource with acls, ces ressources doivent etre recuperer dans une db ou bien un fichier flat, variable ...
+
 
 
 async def get_delete_permission_scope(path: str) -> ObjectAcl:
     if "snapshot" in path:
         return ObjectAcl("NODE_SNAPSHOT", path, get_base_acl_from_ressource(path))
     return ObjectAcl("DELETE", path, get_base_acl_from_ressource(path))
+#je traite les cas precis et ensuite je renvoie le triplet
 
 
 "la logique est la meme pour celle d'en dessous"
@@ -86,13 +104,33 @@ async def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
         return get_delete_permission_scope(request.url.path)
 
 
+#TODO doit-on verifier si le user est bien authenticated sur une api
 def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
     exception = HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
-    #verify scopes, roles, usage in this function
+
+    #try to match user role and role requiered for the endpoint
+    has_role = False
+    for endpoint_role in endpoint_object.roles:
+        for user_role in user_data.role:
+            if endpoint_role == user_role:
+                has_role = True
+                break
+
+    if not has_role:
+        raise exception
+    has_role = False
+    for elt in user_data.scopes:
+        if elt[0] == endpoint_object.action or elt[0] == "ALL": #todo mettre la verification dans quel ordre ?
+            if scope_matching(endpoint_object.scopes, elt):#check if the user has scope
+                if not scope_matching(endpoint_object.scopes, elt):#check if the user don't access a denied scope
+                    has_role = True
+                    break
+    if not has_role:
+        raise exception
 
 
 #add endpoint parameter
