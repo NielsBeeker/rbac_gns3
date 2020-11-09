@@ -9,12 +9,12 @@ fake_user_db = {
     "bob": {
         "username": "bob",
         "hashed_password": pwd_context.hash("secret"),
-        "principals": ["user:bob", "role:user", "user:authenticated"],
+        "roles": ["user:bob", "role:user", "user:authenticated"],
     },
     "alice": {
         "username": "alice",
         "hashed_password": pwd_context.hash("secret"),
-        "principals": ["user:alice", "role:user", "user:authenticated"],
+        "roles": ["user:alice", "role:user", "user:authenticated"],
     },
 }
 
@@ -31,9 +31,15 @@ useradmin
 project_creator // doit on le mettre ?
 """
 
-deny_scope_user_db = {}
+deny_scope_user_db = {
+    "bob": [],
+    "alice" : [],
+}
 
-allow_scope_user_db = {}
+allow_scope_user_db = {
+    "bob": [("/v3/projects/project1/*", "all"), ("v3/projects/", "all")],
+    "alice": []
+}
 
 base_acl_db = {
     "compute":[("user:authenticated", "read"), ("role:admin", "all")],

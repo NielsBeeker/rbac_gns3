@@ -13,9 +13,9 @@ class Token(BaseModel):
 """
 This class contains all user information
 """
-class TokenData(BaseModel):
+class TokenData:
     username: Optional[str] = None
-    scopes: List[(str, str)] = []
-    role: List[str] = []
-    deny_uri: List[(str, str)] = []
+    scopes: [(str, str)] = []
+    role: [str] = []
+    deny_uri: [(str, str)] = []
 

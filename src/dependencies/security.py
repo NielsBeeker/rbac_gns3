@@ -31,13 +31,14 @@ async def scope_matching(matching_scope: str, scope: str) -> bool:
     sub_match = matching_scope.split("/")
     sub_scope = scope.split("/")
 
-    for i in range(1, len(sub_match) - 1):
-        if sub_match[i] != sub_scope[i]:
-            if sub_scope[i] == "*":
+    for i in range(1, len(sub_match)):
+        if sub_match[i] and sub_scope[i] and sub_match[i] != sub_scope[i]:
+            if i == len(sub_scope - 1) and sub_scope is None:
                 return True
             return False
-        if i == len(sub_match):
+        if i == len(sub_match - 1):
             return False
+
     return True
 
 async def get_base_acl_from_ressource(path: str):

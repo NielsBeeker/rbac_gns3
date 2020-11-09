@@ -4,9 +4,10 @@ from typing import Optional
 """
 This class contains User model
 """
-class User(BaseModel):
+class User:
     username: str
     disabled: Optional[bool] = None
+    roles: [str]
 
 """
 Inherits from User for database use
