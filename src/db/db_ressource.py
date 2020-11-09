@@ -9,19 +9,27 @@ fake_user_db = {
     "bob": {
         "username": "bob",
         "hashed_password": pwd_context.hash("secret"),
-        "principals": ["user:bob", "role: user"],
+        "principals": ["user:bob", "role:user", "user:authenticated"],
     },
     "alice": {
         "username": "alice",
         "hashed_password": pwd_context.hash("secret"),
-        "principals": ["user:alice", "role:user"],
+        "principals": ["user:alice", "role:user", "user:authenticated"],
     },
 }
 
-fake_role_db = {
-    "admin": ["all"],
-    "user": []
-}
+"""
+different role possible:
+admin
+user
+owner
+authenticated
+readonly
+templateadmin
+imageadmin
+useradmin
+project_creator // doit on le mettre ?
+"""
 
 base_acl_db = {
     "compute":[("user:authenticated", "read"), ("role:admin", "all")],
