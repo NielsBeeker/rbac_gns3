@@ -20,11 +20,24 @@ fake_user_db = {
 
 fake_role_db = {
     "admin": ["all"],
-    "user": [, ""]
+    "user": []
 }
 
-fake_group_db = {
-
-
+base_acl_db = {
+    "compute":[("user:authenticated", "read"), ("role:admin", "all")],
+    "user": [("role:admin", "all")],
+    "group": [("role:admin", "all")],
+    "role": [("role:admin", "all")],
+    "template_public": [("role:admin", "all"), ("user:authenticated", "use")],
+    "template_private": [("role:admin", "all"), ("user:owner", "all")],
+    "image_public": [("role:admin", "all"), ("user:authenticated", "use")],
+    "image_private": [("role:admin", "all"), ("user:owner", "all")],
+    "symbol_public": [("role:admin", "all"), ("user:authenticated", "use")],
+    "symbol_private": [("role:admin", "all"), ("user:owner", "all")],
+    "project": [("role:admin", "all"), ("user:owner", "all"), ("user:authenticated", "node_console")],
+    "snapshot": [("role:admin", "all"), ("user:owner", "all")],
+    "node": [("role:admin", "all"), ("user:owner", "all"), ("user:authenticated", "node_console")],
+    "link": [("role:admin", "all"), ("user:owner", "all")],
+    "drawing": [("role:admin", "all"), ("user:owner", "all")],
 }
 
