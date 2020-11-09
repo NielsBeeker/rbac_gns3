@@ -31,6 +31,10 @@ useradmin
 project_creator // doit on le mettre ?
 """
 
+deny_scope_user_db = {}
+
+allow_scope_user_db = {}
+
 base_acl_db = {
     "compute":[("user:authenticated", "read"), ("role:admin", "all")],
     "user": [("role:admin", "all")],
@@ -47,5 +51,7 @@ base_acl_db = {
     "node": [("role:admin", "all"), ("user:owner", "all"), ("user:authenticated", "node_console")],
     "link": [("role:admin", "all"), ("user:owner", "all")],
     "drawing": [("role:admin", "all"), ("user:owner", "all")],
+    "controller": [("role:admin", "all")],#todo les 2 dernieres ncessaire ?
+    "appliance": [("role:admin", "all")],
 }
 

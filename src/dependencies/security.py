@@ -18,7 +18,7 @@ from src.models.User import UserInDB, User
 from src.models.ObjectAcl import ObjectAcl
 from src.dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 from src.dependencies.database import get_user
-from src.db.db_ressource import fake_user_db
+from src.db.db_ressource import fake_user_db, base_acl_db
 import re
 
 
@@ -42,30 +42,30 @@ async def scope_matching(matching_scope: str, scope: str) -> bool:
 
 async def get_base_acl_from_ressource(path: str):
     if "computes" in path:
-        return []
+        return base_acl_db["compute"]
     if "appliances" in path:
-        return []
+        return base_acl_db["appliance"]
     if "drawings" in path:
-        return []
+        return base_acl_db["drawing"]
     if "links" in path:
-        return []
+        return base_acl_db["link"]
     if "nodes" in path:
-        return []
+        return base_acl_db["node"]
     if "users" in path: # pour futur endpoint api ,pas encore mis en place
-        return []
+        return base_acl_db["user"]
     if "groups" in path:#
-        return []
+        return base_acl_db["group"]
     if "snapshot" in path:
-        return []
+        return base_acl_db["snapshot"]
     if "templates" in path:
-        return []
+        return base_acl_db["templates"]
     if "images" in path:
-        return []
+        return base_acl_db["image"]
     if "symbols" in path:
-        return []
+        return base_acl_db["symbol"]
     if "projects" in path:
-        return []
-    return [] # controler
+        return base_acl_db["project"]
+    return base_acl_db["controller"]
 
     #return: [("role:amdin", "all"), ("user:authenticated, "use")]
     #voir le format de retour du tuple pour les droits
@@ -74,24 +74,31 @@ async def get_base_acl_from_ressource(path: str):
 
 
 async def get_delete_permission_scope(path: str) -> ObjectAcl:
-    if "snapshot" in path:
-        return ObjectAcl("NODE_SNAPSHOT", path, get_base_acl_from_ressource(path))
+    if "snapshots" in path:
+        return ObjectAcl("node_snapshot", path, get_base_acl_from_ressource(path))
+    if "links" in path:
+        return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
     return ObjectAcl("DELETE", path, get_base_acl_from_ressource(path))
-#je traite les cas precis et ensuite je renvoie le triplet
 
+#TODO determiner les gets qui seront des read et vice versa
 
-"la logique est la meme pour celle d'en dessous"
 async def get_get_permission_scope(path: str):
-    pass
+    if "stream" in path:#condition a determiner pour la permission use
+        return ObjectAcl("use", path, get_base_acl_from_ressource(path))
+    return ObjectAcl("read", path, get_base_acl_from_ressource(path))
 
 async def get_post_permission_scope(path: str):
-    pass
+    #todo predeterminer pour tous les post les differents cas
     # create project: droit: project_creator
+    return ObjectAcl("create", path, get_base_acl_from_ressource(path))
 
+#todo attention au patch (pas encore dans lapi)
 async def get_put_permission_scope(path: str):
-    pass
+    if 'links' in path:
+        return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
+    return ObjectAcl('update', path, get_base_acl_from_ressource(path))
 
-#todo rajouter patch ?
+
 #todo rajouter au parametre de security() dans le endpoint
 async def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
     if request.method == "POST":
@@ -113,15 +120,16 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
             )
 
     #try to match user role and role requiered for the endpoint
+    #todo checker le role et laction du endpoint
+    #premiere porte dautorisation
+
     has_role = False
     for endpoint_role in endpoint_object.roles:
         for user_role in user_data.role:
-            if endpoint_role == user_role:
-                has_role = True
-                break
+            if user_role == endpoint_role[0]: #on recuperer seulement le role du user
+                if endpoint_object[1] == endpoint_object.action:
+                    return #le user a les droits
 
-    if not has_role:
-        raise exception
     has_role = False
     for elt in user_data.scopes:
         if elt[0] == endpoint_object.action or elt[0] == "ALL": #todo mettre la verification dans quel ordre ?
@@ -164,13 +172,6 @@ async def get_current_user(endpoint_object: ObjectAcl,
 
     verify_permission(endpoint_object, token_data, authenticate_value)
 
-    """for scope in security_scopes.scopes:
-        if scope not in token_data.scopes: ## TODO ici on peut comparé les scopes du token avec les scopes requis
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not enough permissions",
-                headers={"WWW-Authenticate": authenticate_value},
-            )"""
     return user
 
 
