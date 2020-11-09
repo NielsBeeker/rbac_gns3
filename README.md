@@ -39,6 +39,7 @@ src/models: Contains class to use for the different functions
 
 #Done: 
 
+
 -authenticate and create an encoded token throw a endpoint and return it
 
 -get current user and decode its token
