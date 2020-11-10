@@ -3,13 +3,7 @@ This file contains middleware for security
 """
 
 from fastapi import Depends, FastAPI, HTTPException, Security, status, APIRouter
-from datetime import datetime, timedelta
-from typing import List, Optional
-from fastapi.security import (
-    OAuth2PasswordBearer,
-    OAuth2PasswordRequestForm,
-    SecurityScopes,
-)
+
 from starlette.requests import Request
 from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
@@ -147,7 +141,7 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
 
 
 #add endpoint parameter
-async def get_current_user(endpoint_object: ObjectAcl,
+async def get_current_user(endpoint_object: ObjectAcl = Depends(get_required_scopes_from_endpoint),
     token: str = Depends(oauth2_scheme)
 ):
     #if security_scopes.scopes:
@@ -180,7 +174,7 @@ async def get_current_user(endpoint_object: ObjectAcl,
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user(get_required_scopes_from_endpoint))):
+async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
