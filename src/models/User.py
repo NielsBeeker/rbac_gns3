@@ -1,13 +1,13 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any, List
 
 """
 This class contains User model
 """
-class User:
+class User(BaseModel):
     username: str
     disabled: Optional[bool] = None
-    roles: [str]
+    roles: List[Any]
 
 """
 Inherits from User for database use

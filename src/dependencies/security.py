@@ -41,6 +41,10 @@ async def scope_matching(matching_scope: str, scope: str) -> bool:
 
     return True
 
+#todo remove
+async def get_request(request: Request):
+    return request
+
 async def get_base_acl_from_ressource(path: str):
     if "computes" in path:
         return base_acl_db["compute"]
@@ -74,7 +78,7 @@ async def get_base_acl_from_ressource(path: str):
 
 
 
-async def get_delete_permission_scope(path: str) -> ObjectAcl:
+def get_delete_permission_scope(path: str) -> ObjectAcl:
     if "snapshots" in path:
         return ObjectAcl("node_snapshot", path, get_base_acl_from_ressource(path))
     if "links" in path:
@@ -83,18 +87,18 @@ async def get_delete_permission_scope(path: str) -> ObjectAcl:
 
 #TODO determiner les gets qui seront des read et vice versa
 
-async def get_get_permission_scope(path: str):
+def get_get_permission_scope(path: str):
     if "stream" in path:#condition a determiner pour la permission use
         return ObjectAcl("use", path, get_base_acl_from_ressource(path))
     return ObjectAcl("read", path, get_base_acl_from_ressource(path))
 
-async def get_post_permission_scope(path: str):
+def get_post_permission_scope(path: str):
     #todo predeterminer pour tous les post les differents cas
     # create project: droit: project_creator
     return ObjectAcl("create", path, get_base_acl_from_ressource(path))
 
 #todo attention au patch (pas encore dans lapi)
-async def get_put_permission_scope(path: str):
+def get_put_permission_scope(path: str):
     if 'links' in path:
         return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
     return ObjectAcl('update', path, get_base_acl_from_ressource(path))
@@ -176,11 +180,7 @@ async def get_current_user(endpoint_object: ObjectAcl,
     return user
 
 
-#a la place de scope=["me"] mettre une fonction qui deduis les scopes required pour endpoint (scope=get_endpoint_scope)
-async def get_current_active_user(
-    endpoint_object: ObjectAcl
-):
-    current_user: User = Depends(get_current_user(endpoint_object=endpoint_object))
+async def get_current_active_user(current_user: User = Depends(get_current_user(get_required_scopes_from_endpoint))):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
