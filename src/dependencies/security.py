@@ -17,29 +17,37 @@ import re
 
 
 """
-return [] remplacé par get base acl
-#TODO dossier database
+3 cas: to match ==> needed for match
+1-get  : v3/projects ==> v3/projects obligatoire
+2-post : v3/projetcs/1234 ==> v3/projects/1234/*
+3-post : v3/projetcs/1234/nodes/12345/duplicate ==> v3/projects/1234/nodes/12345/*
+                                                ou   v3/projetcs/1234/*
+
+This function check if the 2 scopes are matching together with different cases
 """
 
-async def scope_matching(matching_scope: str, scope: str) -> bool:
+def scope_matching(matching_scope: str, scope: str) -> bool:
+    if matching_scope is scope:#cas 1
+        return True
     sub_match = matching_scope.split("/")
     sub_scope = scope.split("/")
-
     for i in range(1, len(sub_match)):
-        if sub_match[i] and sub_scope[i] and sub_match[i] != sub_scope[i]:
-            if i == len(sub_scope - 1) and sub_scope is None:
+        if not sub_scope[i]:#en cas de probleme de check
+            return False
+        if sub_scope[i] and sub_scope[i] != sub_match[i]: # cas 3 ou
+            if sub_scope[i] == "*":
                 return True
             return False
-        if i == len(sub_match - 1):
+    tmp = len(sub_match)
+    if sub_scope[tmp]:
+        if not sub_scope[tmp] == "*":#cas 2
             return False
-
     return True
 
-#todo remove
-async def get_request(request: Request):
-    return request
-
-async def get_base_acl_from_ressource(path: str):
+"""
+This function get base acl ressource from database or something else
+"""
+def get_base_acl_from_ressource(path: str):
     if "computes" in path:
         return base_acl_db["compute"]
     if "appliances" in path:
@@ -66,12 +74,12 @@ async def get_base_acl_from_ressource(path: str):
         return base_acl_db["project"]
     return base_acl_db["controller"]
 
-    #return: [("role:amdin", "all"), ("user:authenticated, "use")]
-    #voir le format de retour du tuple pour les droits
- # google doc : ressource with acls, ces ressources doivent etre recuperer dans une db ou bien un fichier flat, variable ...
 
+"""
+This function create the ObjectAcl with the path of the endpoint for the delete request
 
-
+Ps: An objectAcl is an object with different fields about permissions needed for current endpoint, the path, and the ressource needed for the endpoint 
+"""
 def get_delete_permission_scope(path: str) -> ObjectAcl:
     if "snapshots" in path:
         return ObjectAcl("node_snapshot", path, get_base_acl_from_ressource(path))
@@ -79,27 +87,38 @@ def get_delete_permission_scope(path: str) -> ObjectAcl:
         return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
     return ObjectAcl("DELETE", path, get_base_acl_from_ressource(path))
 
-#TODO determiner les gets qui seront des read et vice versa
 
-def get_get_permission_scope(path: str):
+"""
+This function create the ObjectAcl with the path of the endpoint for the get request
+"""
+#Todo determiner la logique pour determiner les differences entre les differents get
+def get_get_permission_scope(path: str) -> ObjectAcl:
     if "stream" in path:#condition a determiner pour la permission use
         return ObjectAcl("use", path, get_base_acl_from_ressource(path))
     return ObjectAcl("read", path, get_base_acl_from_ressource(path))
 
-def get_post_permission_scope(path: str):
-    #todo predeterminer pour tous les post les differents cas
+
+"""
+This function create the ObjectAcl with the path of the endpoint for the post request
+"""
+#Todo determiner la logique pour determiner les differences entre les differents post
+def get_post_permission_scope(path: str) -> ObjectAcl:
     # create project: droit: project_creator
     return ObjectAcl("create", path, get_base_acl_from_ressource(path))
 
-#todo attention au patch (pas encore dans lapi)
-def get_put_permission_scope(path: str):
+"""
+This function create the ObjectAcl with the path of the endpoint for the get request
+"""
+def get_put_permission_scope(path: str) -> ObjectAcl:
     if 'links' in path:
         return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
     return ObjectAcl('update', path, get_base_acl_from_ressource(path))
 
 
-#todo rajouter au parametre de security() dans le endpoint
-async def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
+"""
+This function return the good object for the endpoint
+"""
+def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
     if request.method == "POST":
         return get_post_permission_scope(request.url.path)
     elif request.method == "PUT":
@@ -110,7 +129,11 @@ async def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
         return get_delete_permission_scope(request.url.path)
 
 
-#TODO doit-on verifier si le user est bien authenticated sur une api
+
+"""
+This function is the one that verify everything
+"""
+#TODO doit-on verifier si le user est bien authenticated sur une api ?
 def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
     exception = HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -118,34 +141,38 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
                 headers={"WWW-Authenticate": authenticate_value},
             )
 
-    #try to match user role and role requiered for the endpoint
-    #todo checker le role et laction du endpoint
-    #premiere porte dautorisation
-
-    has_role = False
+    #check for role
     for endpoint_role in endpoint_object.roles:
-        for user_role in user_data.role:
+        for user_role in user_data.token_role:
             if user_role == endpoint_role[0]: #on recuperer seulement le role du user
-                if endpoint_object[1] == endpoint_object.action:
+                if endpoint_role[1] == endpoint_object.action:
                     return #le user a les droits
 
     has_role = False
+    #check allowed scope
     for elt in user_data.scopes:
-        if elt[0] == endpoint_object.action or elt[0] == "ALL": #todo mettre la verification dans quel ordre ?
-            if scope_matching(endpoint_object.scopes, elt):#check if the user has scope
-                if not scope_matching(endpoint_object.scopes, elt):#check if the user don't access a denied scope
-                    has_role = True
-                    break
+        if elt[1] == endpoint_object.action or elt[1] == "all":
+            if scope_matching(endpoint_object.scopes, elt[0]):
+                has_role = True
+                break
+    #check denied scope
+    for elt in user_data.deny_uri:
+        if elt[1] == endpoint_object.action or elt[1] == "all":
+            if scope_matching(endpoint_object.scopes, elt[0]):
+                has_role = False
+
     if not has_role:
         raise exception
 
 
-#add endpoint parameter
-async def get_current_user(endpoint_object: ObjectAcl = Depends(get_required_scopes_from_endpoint),
-    token: str = Depends(oauth2_scheme)
-):
+"""
+This function will get the token and decode it.
+Then it verifies that the user has the right to call this endpoint.
+"""
+#Todo Besoin de laisser autant d'information dans le token ou il suffit de récupérer ça de la base de donnée ?
+async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
     #if security_scopes.scopes:
-    #    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' #a voir pour la modif
+    #    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     #else:
     #    authenticate_value = f"Bearer"
     authenticate_value = f"Bearer"
@@ -159,30 +186,26 @@ async def get_current_user(endpoint_object: ObjectAcl = Depends(get_required_sco
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_scopes = payload.get("scopes", []) # TODO permet de récuprer les scopes du current user ces |||||||| ces informations soit dans le token, soit dans le bdd
-        token_role = payload.get("role", []) #TODO permet de recuperer les roles du current user
-        deny_user_scope = payload.get("deny_user_scope")#TODO recup les deny scope du user
-        token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role, deny_user_scope=deny_user_scope)
+        token_scopes = payload.get("scopes", []) # get scope, username, deny_scope, role from user's token
+        token_role = payload.get("role", [])
+        deny_user_scope = payload.get("deny_scope")
+        token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role, deny_uri=deny_user_scope)
     except (JWTError, ValidationError):
         raise credentials_exception
     user = get_user(fake_user_db, username=token_data.username)
     if user is None:
         raise credentials_exception
 
-    verify_permission(endpoint_object, token_data, authenticate_value)
+    verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value)
 
     return user
 
-
+"""
+This function is the one to depends with.
+It will manage automatically the permission of the user
+"""
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-
-
-scope_requiered = ("update", "projects/{}/links/{}")
-
-
-user_scope_in_db = ("update", "project/{}/*")
-deny_user_scope = ("update", "project/{}/links/{}")

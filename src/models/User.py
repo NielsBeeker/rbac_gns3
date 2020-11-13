@@ -14,3 +14,10 @@ Inherits from User for database use
 """
 class UserInDB(User):
     hashed_password: str
+
+"""
+This class contains usermane and not hashed password for authentication
+"""
+class Auth(BaseModel):
+    username: Optional[str] = None
+    password: Optional[str] = None

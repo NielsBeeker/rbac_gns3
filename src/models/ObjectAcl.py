@@ -1,3 +1,6 @@
+"""
+This class contains the different things about endpoint required for user verification
+"""
 class ObjectAcl:
     def __init__(self, action: str, scopes: str , roles: [(str, str)]):
         self.action = action

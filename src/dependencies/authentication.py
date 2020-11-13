@@ -40,7 +40,7 @@ def authenticate_user(fake_db, username: str, password: str) -> UserInDB:
     return user
 
 
-#TODO mettre a jour la fonction pour mettre rajouter les info necessaire dans le token
+#TODO gerer la notion de refresh avec les tokens
 def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta

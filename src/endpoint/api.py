@@ -1,5 +1,5 @@
 """
-A simple file to add endpoint to routeur
+A simple file to add endpoint to router
 """
 
 from fastapi import APIRouter

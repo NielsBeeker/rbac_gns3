@@ -9,12 +9,12 @@ fake_user_db = {
     "bob": {
         "username": "bob",
         "hashed_password": pwd_context.hash("secret"),
-        "roles": ["user:bob", "role:user", "user:authenticated"],
+        "roles": ["user:bob", "user:authenticated"],
     },
     "alice": {
         "username": "alice",
         "hashed_password": pwd_context.hash("secret"),
-        "roles": ["user:alice", "role:user", "user:authenticated"],
+        "roles": ["user:alice", "user:authenticated"],
     },
 }
 
