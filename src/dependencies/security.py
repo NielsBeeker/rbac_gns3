@@ -26,7 +26,7 @@ This function check if the 2 scopes are matching together with different cases
 """
 
 def scope_matching(matching_scope: str, scope: str) -> bool:
-    if matching_scope is scope:#cas 1
+    if matching_scope == scope:#cas 1
         return True
     sub_match = matching_scope.split("/")
     sub_scope = scope.split("/")
@@ -64,11 +64,11 @@ def get_base_acl_from_ressource(path: str):
     if "snapshot" in path:
         return base_acl_db["snapshot"]
     if "templates" in path:
-        return base_acl_db["templates"]
+        return base_acl_db["template_public"]
     if "images" in path:
-        return base_acl_db["image"]
+        return base_acl_db["image_public"]
     if "symbols" in path:
-        return base_acl_db["symbol"]
+        return base_acl_db["symbol_public"]
     if "projects" in path:
         return base_acl_db["project"]
     return base_acl_db["controller"]
@@ -134,18 +134,13 @@ This function is the one that verify everything
 """
 #TODO doit-on verifier si le user est bien authenticated sur une api ?
 def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
-    exception = HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not enough permissions",
-                headers={"WWW-Authenticate": authenticate_value},
-            )
 
     #check for role
     for endpoint_role in endpoint_object.roles:
         for user_role in user_data.token_role:
             if user_role == endpoint_role[0]: #on recuperer seulement le role du user
                 if endpoint_role[1] == endpoint_object.action:
-                    return #le user a les droits
+                    return True
 
     has_role = False
     #check allowed scope
@@ -161,7 +156,8 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
                 has_role = False
 
     if not has_role:
-        raise exception
+        raise False
+    return True
 
 
 """
@@ -180,12 +176,17 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": authenticate_value},
     )
+    #todo add private key, or public key for token ?
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_scopes = payload.get("scopes", []) # get scope, username, deny_scope, role from user's token
+        tmp_token_scopes = payload.get("scopes", [])# get scope, username, deny_scope, role from user's token
+        #for some reason when you encode a list a tuple if become a list of list with 2 elt
+        token_scopes = []
+        for elt in tmp_token_scopes:
+            token_scopes.append((elt[0], elt[1]))
         token_role = payload.get("role", [])
         deny_user_scope = payload.get("deny_scope")
         token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role, deny_uri=deny_user_scope)
@@ -195,7 +196,12 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     if user is None:
         raise credentials_exception
 
-    verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value)
+    if not verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value):
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
 
     return user
 

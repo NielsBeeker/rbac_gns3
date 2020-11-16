@@ -33,7 +33,8 @@ def get_user_acl(user_roles, username):
             roles.append(elt)# add user_role to group_role
     res_acl = []
     for elt in roles:
-        res_acl.append(fake_role_db[elt]) #get the acl from roles
+        for tmp in fake_role_db[elt]:
+            res_acl.append(tmp) #get the acl from roles
     allow_scope = allow_scope_user_db[username]
     res_acl += allow_scope # dirty way to add scope to res_acl
     #todo faire en sorte d'avoir une acl propre sans redondance sur les endpoints

@@ -20,7 +20,6 @@ fake_user_db = {
 }
 
 
-#TODO repenser le fonctionne de group
 """
 This database will provides us the current users in the group and its acl
 """
@@ -36,13 +35,13 @@ fake_group_db = {
 This database will provide us the acl from a role
 """
 fake_role_db = {
-    "admin": [("*", "all")],
+    "admin": [("/*", "all")],
     "user": [],# quoi mettre ?
-    "readonly": [("v3/*", "read")],
-    "template_admin": [("v3/templates", "all")],
-    "image_admin": [("v3/images", "all")],
-    "user_admin": [("v3/users", "all")],
-    "project_creator": [("v3/projects", "create")],
+    "readonly": [("/v3/*", "read")],
+    "template_admin": [("/v3/templates", "all")],
+    "image_admin": [("/v3/images", "all")],
+    "user_admin": [("/v3/users", "all")],
+    "project_creator": [("/v3/projects", "create")],
     "authenticated": []
 }
 
