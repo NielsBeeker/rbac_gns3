@@ -20,8 +20,8 @@ from starlette.responses import RedirectResponse
 from src.models.User import User, Auth
 from src.models.ObjectAcl import ObjectAcl
 from fastapi import Depends
-from src.dependencies.security import get_current_active_user, get_required_scopes_from_endpoint, get_request
-
+from src.dependencies.security import get_current_active_user, get_required_scopes_from_endpoint
+from src.dependencies.database import get_user_acl
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -44,10 +44,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # get scope related to group/role
+    scope, role = get_user_acl(user.roles, user.username)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username, "scopes": allow_scope_user_db[user.username],
-              "role": user.roles,
+        data={"sub": user.username, "scopes": scope,
+              "role": role,
               "deny_scope": deny_scope_user_db[user.username]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
@@ -72,10 +74,12 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    #get scope related to group/role
+    scope, role = get_user_acl(user.roles, user.username)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username, "scopes": allow_scope_user_db[user.username],
-              "role": user.roles,
+        data={"sub": user.username, "scopes": scope,
+              "role": role,
               "deny_scope": deny_scope_user_db[user.username]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}

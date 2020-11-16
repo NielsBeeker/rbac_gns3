@@ -13,7 +13,6 @@ from src.models.ObjectAcl import ObjectAcl
 from src.dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 from src.dependencies.database import get_user
 from src.db.db_ressource import fake_user_db, base_acl_db
-import re
 
 
 """
