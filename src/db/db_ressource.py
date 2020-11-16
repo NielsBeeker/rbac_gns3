@@ -65,7 +65,7 @@ deny_scope_user_db = {
 
 allow_scope_user_db = {
     "bob": [("/v3/projects/project1/*", "all"), ("v3/projects/", "all")],
-    "alice": []
+    "alice": [("/v3/projects/project1/*", "all"), ("v3/projects/", "all")]
 }
 
 base_acl_db = {

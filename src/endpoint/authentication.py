@@ -94,3 +94,7 @@ async def read_me(current_user: User = Depends(get_current_active_user)):
 @router.post("/v3/templates")
 async def create_template(current_user: User = Depends(get_current_active_user)):
     return {f"{current_user.username} can create templates !"}
+
+@router.get("/v3/projects/project1/nodes/node1")
+async def get_nodes(current_user: User = Depends(get_current_active_user)):
+    return {f"{current_user.username} can get nodes !"}
