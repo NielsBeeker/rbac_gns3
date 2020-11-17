@@ -1,53 +1,36 @@
 # rbac_gns3
-Working on a rbac implementation
+Working on a rbac implementation for gns3
 
 #About: 
 
-src/db: Contains db for the project
+    src/db: Contains db for the project
 
-src/dependencies: Contains middleware for api
+    src/dependencies: Contains middleware for api
 
-src/endpoint: Contains functions for api's endpoint
+    src/endpoint: Contains functions for api's endpoint
 
-src/models: Contains class to use for the different functions
+    src/models: Contains class to use for the different functions
 
 
 #Todo:
-
--create little database manager for local project
-
--create database, table and fill it in local
-
--get user scope from db
-
--get user role from db
-
--get user deny scope from db
-
--add all user info to the token
+    add pytest to project and create unit test
 
 #Working:
-
--verify if role fits with endpoint
-
--verify if deny scopes fits with endpoint
-
--verify if scopes fits with endpoint
-
--get usage from endpoint
-
+    finish get_get_scope and get_post_scope
+    check scope matching
 
 #Done: 
-
-
--authenticate and create an encoded token throw a endpoint and return it
-
--get current user and decode its token
-
--get deny scope from user, get role from user, get scope from user
-
+    authentication:
+        -create acces_token and return it
+        -get all information about user and put it in the token
+    
+    verification:
+        -get request and return endpoint object related to the query
+        -decode the token and get all information about
+        -verify that the scope are matching with permission and role
+    
 #Tested:
-
+    
 
 
 

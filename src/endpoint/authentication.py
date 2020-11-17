@@ -76,6 +76,7 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
         )
     #get scope related to group/role
     scope, role = get_user_acl(user.roles, user.username)
+    #todo gerer le fait que les roles peuvent deny
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "scopes": scope,
