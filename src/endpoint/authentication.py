@@ -10,18 +10,18 @@ from fastapi.security import (
     HTTPBasic
 )
 from starlette.requests import Request
-from src.models.Token import Token, TokenData
-from src.models.User import User, UserInDB
-from src.dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from src.db.db_ressource import fake_user_db, base_acl_db, deny_scope_user_db, allow_scope_user_db
+from models.Token import Token, TokenData
+from models.User import User, UserInDB
+from dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from db.db_ressource import fake_user_db, base_acl_db, deny_scope_user_db, allow_scope_user_db
 
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
-from src.models.User import User, Auth
-from src.models.ObjectAcl import ObjectAcl
+from models.User import User, Auth
+from models.ObjectAcl import ObjectAcl
 from fastapi import Depends
-from src.dependencies.security import get_current_active_user, get_required_scopes_from_endpoint
-from src.dependencies.database import get_user_acl
+from dependencies.security import get_current_active_user, get_required_scopes_from_endpoint
+from dependencies.database import get_user_acl
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -34,7 +34,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 request with xxx-form-urlencoded
 sert de moyen d'authentification pour l'api
 """
-@router.post("/token", response_model=Token)
+@router.post("/v3/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_user_db, form_data.username, form_data.password)
 
@@ -58,7 +58,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 request with -d {"username":"username", "password": "secret"}
 sert de moyen d'authentification en envoyant un curl avec un --data
 """
-@router.post("/token2", response_model=Token)
+@router.post("/v3/token2", response_model=Token)
 async def login_for_access_token1(auth: Optional[Auth] = None):
     if auth is None:
         raise HTTPException(
@@ -94,7 +94,7 @@ async def read_me(current_user: User = Depends(get_current_active_user)):
 
 @router.post("/v3/templates")
 async def create_template(current_user: User = Depends(get_current_active_user)):
-    return {f"{current_user.username} can create templates !"}
+    return {"ok"}
 
 @router.get("/v3/projects/project1/nodes/node1")
 async def get_nodes(current_user: User = Depends(get_current_active_user)):

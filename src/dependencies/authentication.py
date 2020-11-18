@@ -14,8 +14,8 @@ from jose import jwt
 from passlib.context import CryptContext
 
 
-from src.dependencies.database import get_user
-from src.models.User import UserInDB, User
+from dependencies.database import get_user
+from models.User import UserInDB, User
 
 router = APIRouter()
 

@@ -3,7 +3,7 @@ A simple file to add endpoint to router
 """
 
 from fastapi import APIRouter
-from src.endpoint import authentication
+from endpoint import authentication
 
 router = APIRouter()
 

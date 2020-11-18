@@ -7,12 +7,12 @@ from fastapi import Depends, FastAPI, HTTPException, Security, status, APIRouter
 from starlette.requests import Request
 from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
-from src.models.Token import Token, TokenData
-from src.models.User import UserInDB, User
-from src.models.ObjectAcl import ObjectAcl
-from src.dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
-from src.dependencies.database import get_user
-from src.db.db_ressource import fake_user_db, base_acl_db
+from models.Token import Token, TokenData
+from models.User import UserInDB, User
+from models.ObjectAcl import ObjectAcl
+from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
+from dependencies.database import get_user
+from db.db_ressource import fake_user_db, base_acl_db
 
 
 """

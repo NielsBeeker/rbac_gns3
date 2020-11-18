@@ -2,8 +2,8 @@
 This file contains middleware related to database
 """
 
-from src.models.User import UserInDB
-from src.db.db_ressource import fake_role_db, fake_group_db, allow_scope_user_db, fake_user_db
+from models.User import UserInDB
+from db.db_ressource import fake_role_db, fake_group_db, allow_scope_user_db, fake_user_db
 
 #les roles peuvent-il mettre des restrictions
 
