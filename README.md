@@ -14,7 +14,7 @@ Working on a rbac implementation for gns3
 
 #Todo:
     add pytest to project and create unit test
-
+    add more check on accessing on a list's index
 #Working:
     finish get_get_scope and get_post_scope
     check scope matching
