@@ -244,121 +244,148 @@ async def start_nodes(current_user: User = Depends(get_current_active_user)):
 async def get_node_links(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/projects/project1234/nodes/node1234/files/file1234")
 async def get_file(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.post("/v3/projects/project1234/nodes/node1234/files/file1234")
 async def post_file(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects/project1234/nodes/console/reset")
 async def reset_all_consoles(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.post("/v3/projects/project1234/nodes/node1234/console/reset")
 async def reset_node_console(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/notification")
 async def get_notification(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/projects")
 async def get_projects(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects")
 async def create_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/projects/project1234")
 async def get_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.put("/v3/projects/project1234")
 async def update_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.delete("/v3/projects/project1234")
 async def delete_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/projects/project1234/stats")
 async def get_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.post("/v3/projects/load")
 async def load_projects(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects/project1234")
 async def close_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/projects/project1234/export")
 async def export_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects/project1234/duplicate")
 async def duplicate_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/projects/project1234/snapshots")
 async def get_snapshots(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects/project1234/snapshots")
 async def create_snapshot(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.delete("/v3/projects/project1234/snapshots/snapshot1234")
 async def delete_snapshots(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.post("/v3/projects/project1234/snapshots/snapshot1234/restore")
 async def restore_snapshot(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/symbols")
 async def get_symbols(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/symbols/symbol1234/raw")
 async def get_symbol(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.get("/v3/symbols/default_symbols")
 async def get_default_symbols(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/templates")
 async def get_templates(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.post("/v3/templates")
 async def create_templates(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.get("/v3/templates/template1234")
 async def get_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.delete("/v3/templates/template1234")
 async def delete_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
+
 @router.put("/v3/templates/template1234")
 async def update_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
+
 
 @router.post("/v3/templates/templates1234/duplicate")
 async def duplicate_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-#todo idée : pour donner des ressources de base au user, plutot utiliser la base ressource acl que donner des scope à chaque users au debut
+# todo idée : pour donner des ressources de base au user, plutot utiliser la base ressource acl que donner des scope à chaque users au debut
 @router.post("/v3/templates/templates/template1234")
 async def create_node_from_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
-
