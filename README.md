@@ -1,4 +1,5 @@
 # rbac_gns3
+
 Working on a rbac implementation for gns3
 
 #About: 
@@ -13,11 +14,15 @@ Working on a rbac implementation for gns3
 
 
 #Todo:
+
     create unit tests for all endpoint
+
     add more check on accessing on a list's index
     
 #Working:
+
     finish get_get_scope and get_post_scope
+
     check scope matching
 
 #Done: 
