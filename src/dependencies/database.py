@@ -27,7 +27,7 @@ def get_user_acl(user_roles, username):
                 if elt not in roles:
                     roles.append(elt)
 
-
+    #todo rajouter la notion de groupe dans un groupe
     for elt in user_roles:
         if elt not in roles:
             roles.append(elt)# add user_role to group_role
@@ -36,6 +36,8 @@ def get_user_acl(user_roles, username):
         for tmp in fake_role_db[elt]:
             res_acl.append(tmp) #get the acl from roles
     allow_scope = allow_scope_user_db[username]
+    #todo question: comment je dois recuperer les scopes du user puis des groupe ==> ordre a respecter pour le bon fonctionnement
+    #a faire: rajouter de maniere propre les scopes en fonction des permissions
     res_acl += allow_scope # dirty way to add scope to res_acl
     #todo faire en sorte d'avoir une acl propre sans redondance sur les endpoints
     """for elt in allow_scope:

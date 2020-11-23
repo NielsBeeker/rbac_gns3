@@ -23,25 +23,28 @@ fake_user_db = {
 """
 This database will provides us the current users in the group and its acl
 """
+
+#todo gerer la notion de groupe dans des groupes
 fake_group_db = {
     "editor": {
         "users": ["alice"],
         "roles": ["template_admin", "image_admin", "user_admin"],
     },
-
 }
 
 """
 This database will provide us the acl from a role
 """
+
+
 fake_role_db = {
-    "admin": [("/*", "all")],
+    "admin": [("/*", "all", "Allow")],
     "user": [],# quoi mettre ?
-    "readonly": [("/v3/*", "read")],
-    "template_admin": [("/v3/templates", "all")],
-    "image_admin": [("/v3/images", "all")],
-    "user_admin": [("/v3/users", "all")],
-    "project_creator": [("/v3/projects", "create")],
+    "readonly": [("/v3/*", "read", "Allow")],
+    "template_admin": [("/v3/templates", "all", "Allow")],
+    "image_admin": [("/v3/images", "all", "Allow")],
+    "user_admin": [("/v3/users", "all", "Allow")],
+    "project_creator": [("/v3/projects", "create", "Allow")],
     "authenticated": []
 }
 
@@ -58,17 +61,12 @@ useradmin
 project_creator // doit on le mettre ?
 """
 
-deny_scope_user_db = {
-    "bob": [],
-    "alice": [],
-}
-
 allow_scope_user_db = {
-    "bob": [("/v3/projects/project1/*", "all"), ("v3/projects/", "all")],
-    "alice": [("/v3/projects/project1/*", "all"), ("v3/projects/", "all")]
+    "bob": [("/v3/projects/project1/*", "all", "Allow"), ("v3/projects/", "all", "Allow")],
+    "alice": [("/v3/projects/project1/*", "all", "Allow"), ("v3/projects/", "all", "Allow")]
 }
 
-base_acl_db = {
+"""base_acl_db = {
     "compute": [("authenticated", "read"), ("admin", "all")],
     "user": [("admin", "all")],
     "group": [("admin", "all")],
@@ -86,5 +84,5 @@ base_acl_db = {
     "drawing": [("admin", "all"), ("owner", "all")],
     "controller": [("admin", "all")],#todo les 2 dernieres nécessaire ?
     "appliance": [("admin", "all")],
-}
+}"""
 

@@ -28,9 +28,9 @@ This function check if the 2 scopes are matching together with different cases
 def scope_matching(matching_scope: str, scope: str) -> bool:
     if matching_scope == scope:#cas 1
         return True
-    sub_match = matching_scope.split("/")
+    sub_match = matching_scope.split("/") # /v3/projects => ["", "v3", "projects"]
     sub_scope = scope.split("/")
-    for i in range(1, len(sub_match)):
+    for i in range(1, len(sub_match)): ## skiping the first elt which is "" because of the split on "/v3/projects"
         if not sub_scope[i]:#en cas de probleme de check
             return False
         if sub_scope[i] and sub_scope[i] != sub_match[i]: # cas 3 ou
@@ -46,6 +46,7 @@ def scope_matching(matching_scope: str, scope: str) -> bool:
 """
 This function get base acl ressource from database or something else
 """
+#todo delete this function and the ressource in db
 def get_base_acl_from_ressource(path: str):
     if "computes" in path:
         return base_acl_db["compute"]
@@ -81,10 +82,10 @@ Ps: An objectAcl is an object with different fields about permissions needed for
 """
 def get_delete_permission_scope(path: str) -> ObjectAcl:
     if "snapshots" in path:
-        return ObjectAcl("node_snapshot", path, get_base_acl_from_ressource(path))
+        return ObjectAcl("node_snapshot", path)
     if "links" in path:
-        return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
-    return ObjectAcl("DELETE", path, get_base_acl_from_ressource(path))
+        return ObjectAcl("link_filter", path)
+    return ObjectAcl("DELETE", path)
 
 
 """
@@ -93,8 +94,8 @@ This function create the ObjectAcl with the path of the endpoint for the get req
 #Todo determiner la logique pour determiner les differences entre les differents get
 def get_get_permission_scope(path: str) -> ObjectAcl:
     if "stream" in path:#condition a determiner pour la permission use
-        return ObjectAcl("use", path, get_base_acl_from_ressource(path))
-    return ObjectAcl("read", path, get_base_acl_from_ressource(path))
+        return ObjectAcl("use", path)
+    return ObjectAcl("read", path)
 
 
 """
@@ -103,15 +104,15 @@ This function create the ObjectAcl with the path of the endpoint for the post re
 #Todo determiner la logique pour determiner les differences entre les differents post
 def get_post_permission_scope(path: str) -> ObjectAcl:
     # create project: droit: project_creator
-    return ObjectAcl("create", path, get_base_acl_from_ressource(path))
+    return ObjectAcl("create", path)
 
 """
 This function create the ObjectAcl with the path of the endpoint for the get request
 """
 def get_put_permission_scope(path: str) -> ObjectAcl:
     if 'links' in path:
-        return ObjectAcl("link_filter", path, get_base_acl_from_ressource(path))
-    return ObjectAcl('update', path, get_base_acl_from_ressource(path))
+        return ObjectAcl("link_filter", path)
+    return ObjectAcl('update', path)
 
 
 """
@@ -126,7 +127,7 @@ def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
         return get_get_permission_scope(request.url.path)
     else:
         return get_delete_permission_scope(request.url.path)
-
+#changement : ne recupere plus les acl en fonction des ressources
 
 
 """
@@ -134,15 +135,16 @@ This function is the one that verify everything
 """
 #TODO doit-on verifier si le user est bien authenticated sur une api ?
 def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
-
-    #check for role
+    #todo this case must not be use => we cant give base rights to object, only user have permission
+    """ #check for role
     for endpoint_role in endpoint_object.roles:
         for user_role in user_data.token_role:
             if user_role == endpoint_role[0]: #on recuperer seulement le role du user
                 if endpoint_role[1] == endpoint_object.action:
-                    return True
+                    return True"""
 
-    has_role = False
+    #before
+    """has_role = False
     #check allowed scope
     for elt in user_data.scopes:
         if elt[1] == endpoint_object.action or elt[1] == "all":
@@ -153,11 +155,21 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
     for elt in user_data.deny_uri:
         if elt[1] == endpoint_object.action or elt[1] == "all":
             if scope_matching(endpoint_object.scopes, elt[0]):
-                has_role = False
+                has_role = False"""
 
-    if not has_role:
-        raise False
-    return True
+
+    #after
+
+    #meme concept que le pare-feu, je check les acl les une à la suite des autres et je return false/true au premier match
+    for elt in user_data.scopes:
+        if elt[1] == endpoint_object.action or elt[1] == "all":
+            res = scope_matching(endpoint_object.scopes, elt[0])
+            if res and elt[2] == "Allow":#todo elt[2] a rajouter avec le allow, deny aux scopes
+                return True
+            elif res and elt[2] == "Deny":
+                return False
+    # base case
+    return False
 
 
 """
@@ -186,10 +198,9 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         #for some reason when you encode a list a tuple if become a list of list with 2 elt
         token_scopes = []
         for elt in tmp_token_scopes:
-            token_scopes.append((elt[0], elt[1]))
+            token_scopes.append((elt[0], elt[1], elt[2])) #todo add index check
         token_role = payload.get("role", [])
-        deny_user_scope = payload.get("deny_scope")
-        token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role, deny_uri=deny_user_scope)
+        token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role)
     except (JWTError, ValidationError):
         raise credentials_exception
     user = get_user(fake_user_db, username=token_data.username)

@@ -2,9 +2,9 @@
 This class contains the different things about endpoint required for user verification
 """
 class ObjectAcl:
-    def __init__(self, action: str, scopes: str , roles: [(str, str)]):
+    def __init__(self, action: str, roles: [(str, str)]):
         self.action = action
-        self.scopes = scopes
+
         self.roles = roles
 
     def get_role(self):
@@ -12,6 +12,3 @@ class ObjectAcl:
 
     def get_action(self):
         return self.action
-
-    def get_scopes(self):
-        return self.scopes

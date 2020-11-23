@@ -17,7 +17,7 @@ Working on a rbac implementation for gns3
 
     create unit tests for all endpoint
 
-    add more check on accessing on a list's index
+    add more check when accessing on a list's index
     
 #Working:
 

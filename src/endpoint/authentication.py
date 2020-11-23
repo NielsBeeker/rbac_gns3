@@ -13,7 +13,7 @@ from starlette.requests import Request
 from models.Token import Token, TokenData
 from models.User import User, UserInDB
 from dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from db.db_ressource import fake_user_db, base_acl_db, deny_scope_user_db, allow_scope_user_db
+from db.db_ressource import fake_user_db, allow_scope_user_db
 
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -50,7 +50,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.username, "scopes": scope,
               "role": role,
-              "deny_scope": deny_scope_user_db[user.username]}, expires_delta=access_token_expires
+              }, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -84,7 +84,7 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
     access_token = create_access_token(
         data={"sub": user.username, "scopes": scope,
               "role": role,
-              "deny_scope": deny_scope_user_db[user.username]}, expires_delta=access_token_expires
+              }, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
