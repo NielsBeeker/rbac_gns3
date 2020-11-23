@@ -15,6 +15,10 @@ Working on a rbac implementation for gns3
 
 #Todo:
 
+    update database to feet with code
+    
+    create a function to generate test
+
     create unit tests for all endpoint
 
     add more check when accessing on a list's index
