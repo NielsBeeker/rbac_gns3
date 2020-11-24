@@ -12,7 +12,7 @@ from models.User import UserInDB, User
 from models.ObjectAcl import ObjectAcl
 from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 from dependencies.database import get_user
-from db.db_ressource import fake_user_db, base_acl_db
+from db.db_ressource import fake_user_db
 
 
 """
@@ -163,7 +163,7 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
     #meme concept que le pare-feu, je check les acl les une à la suite des autres et je return false/true au premier match
     for elt in user_data.scopes:
         if elt[1] == endpoint_object.action or elt[1] == "all":
-            res = scope_matching(endpoint_object.scopes, elt[0])
+            res = scope_matching(endpoint_object.roles, elt[0])
             if res and elt[2] == "Allow":#todo elt[2] a rajouter avec le allow, deny aux scopes
                 return True
             elif res and elt[2] == "Deny":
