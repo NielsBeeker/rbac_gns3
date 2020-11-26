@@ -1,8 +1,14 @@
-import pytest
+default_test = [("hello", "W2rld")]
 
-@pytest.fixture(scope="class")
-def db_class(request):
-    class DummyDB:
-        pass
+def pytest_addoption(parser):
+    parser.addoption(
+        "--stringinput",
+        action="append",
+        default=default_test,
+        help="list of strings inputs to pass to test functions"
+    )
 
-    request.cls.db = DummyDB()
+
+def pytest_generate_tests(metafunc):
+    if "stringinput" in metafunc.fixturenames:
+        metafunc.parametrize("stringinput", metafunc.config.getoption("stringinput"))

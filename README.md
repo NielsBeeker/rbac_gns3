@@ -15,14 +15,15 @@ Working on a rbac implementation for gns3
 
 #Todo:
     
-    create a function to generate test
+    generate a file with a list of endpoint/action to test
 
-    create unit tests for all endpoint
+    create a file with all endpoint and expected result
+    
+    add more user, role and permission to test
+    
+    
     
 #Working:
-
-    finish get_get_scope and get_post_scope
-
     check scope matching
 
 #Done: 
