@@ -16,7 +16,7 @@ auth_header = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 
 
 @pytest.mark.asyncio
-async def test_gcreate_templates():
+async def test_create_templates():
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
         token = await ac.post("v3/token2", headers=auth_header, json={"username":"alice", "password": "secret"})#TODO a gerer selon le endpoint
         res = token.json()

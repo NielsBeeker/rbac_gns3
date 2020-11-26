@@ -30,24 +30,27 @@ def scope_matching(matching_scope: str, scope: str) -> bool:
         return True
     sub_match = matching_scope.split("/") # /v3/projects => ["", "v3", "projects"]
     sub_scope = scope.split("/")
-    for i in range(1, len(sub_match)): ## skiping the first elt which is "" because of the split on "/v3/projects"
-        if not sub_scope[i]:#en cas de probleme de check
-            return False
-        if sub_scope[i] and sub_scope[i] != sub_match[i]: # cas 3 ou
-            if sub_scope[i] == "*":
-                return True
-            return False
-    tmp = len(sub_match)
-    if sub_scope[tmp]:
-        if not sub_scope[tmp] == "*":#cas 2
-            return False
+    try:
+        for i in range(1, len(sub_match)): ## skiping the first elt which is "" because of the split on "/v3/projects"
+            if not sub_scope[i]:#en cas de probleme de check
+                return False
+            if sub_scope[i] and sub_scope[i] != sub_match[i]: # cas 3 ou
+                if sub_scope[i] == "*":
+                    return True
+                return False
+        tmp = len(sub_match)
+        if sub_scope[tmp]:
+            if not sub_scope[tmp] == "*":#cas 2
+                return False
+    except IndexError:
+        return False
     return True
 
 """
 This function get base acl ressource from database or something else
 """
 #todo delete this function and the ressource in db
-def get_base_acl_from_ressource(path: str):
+"""def get_base_acl_from_ressource(path: str):
     if "computes" in path:
         return base_acl_db["compute"]
     if "appliances" in path:
@@ -73,7 +76,7 @@ def get_base_acl_from_ressource(path: str):
     if "projects" in path:
         return base_acl_db["project"]
     return base_acl_db["controller"]
-
+"""
 
 """
 This function create the ObjectAcl with the path of the endpoint for the delete request
@@ -161,13 +164,16 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
     #after
 
     #meme concept que le pare-feu, je check les acl les une à la suite des autres et je return false/true au premier match
-    for elt in user_data.scopes:
-        if elt[1] == endpoint_object.action or elt[1] == "all":
-            res = scope_matching(endpoint_object.roles, elt[0])
-            if res and elt[2] == "Allow":#todo elt[2] a rajouter avec le allow, deny aux scopes
-                return True
-            elif res and elt[2] == "Deny":
-                return False
+    try:
+        for elt in user_data.scopes:
+            if elt[1] == endpoint_object.action or elt[1] == "all":
+                res = scope_matching(endpoint_object.roles, elt[0])
+                if res and elt[2] == "Allow":#todo elt[2] a rajouter avec le allow, deny aux scopes
+                    return True
+                elif res and elt[2] == "Deny":
+                    return False
+    except IndexError:
+        return False
     # base case
     return False
 
@@ -197,8 +203,11 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         tmp_token_scopes = payload.get("scopes", [])# get scope, username, deny_scope, role from user's token
         #for some reason when you encode a list a tuple if become a list of list with 2 elt
         token_scopes = []
-        for elt in tmp_token_scopes:
-            token_scopes.append((elt[0], elt[1], elt[2])) #todo add index check
+        try:
+            for elt in tmp_token_scopes:
+                token_scopes.append((elt[0], elt[1], elt[2])) #todo add index check
+        except IndexError:
+            raise credentials_exception
         token_role = payload.get("role", [])
         token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role)
     except (JWTError, ValidationError):

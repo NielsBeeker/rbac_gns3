@@ -21,6 +21,8 @@ get user acl with the role and group
 def get_user_acl(user_roles, username):
     roles = []
     for key, value in fake_group_db.items():
+        if "user" not in tmp:
+            return
         tmp = value["users"]
         if username in tmp:
             for elt in value["roles"]:
@@ -36,13 +38,9 @@ def get_user_acl(user_roles, username):
         for tmp in fake_role_db[elt]:
             res_acl.append(tmp) #get the acl from roles
     allow_scope = allow_scope_user_db[username]
-    #todo question: comment je dois recuperer les scopes du user puis des groupe ==> ordre a respecter pour le bon fonctionnement
-    #a faire: rajouter de maniere propre les scopes en fonction des permissions
+    #a faire: rajouter de maniere propre les scopes en fonction des permissions avec l'ordre a mettre en place ==> je en sais pas faire
     res_acl += allow_scope # dirty way to add scope to res_acl
-    #todo faire en sorte d'avoir une acl propre sans redondance sur les endpoints
-    """for elt in allow_scope:
-        for tmp in res_acl:
-            if elt[0] == tmp[0] and (elt[0] == tmp[]
-    """
+
+
 
     return res_acl, roles

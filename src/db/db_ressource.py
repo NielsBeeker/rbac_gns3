@@ -62,8 +62,8 @@ project_creator // doit on le mettre ?
 """
 
 allow_scope_user_db = {
-    "bob": [("/v3/projects/project1/*", "all", "Allow"), ("v3/projects/", "all", "Allow")],
-    "alice": [("/v3/projects/project1/*", "all", "Allow"), ("v3/projects/", "all", "Allow")]
+    "bob": [("/v3/projects/project1/*", "all", "Allow"), ("/v3/projects/", "all", "Allow")],
+    "alice": [("/v3/projects/project1/*", "all", "Allow"), ("/v3/projects", "create", "Deny"), ("v3/projects/", "all", "Allow")]
 }
 
 """base_acl_db = {
