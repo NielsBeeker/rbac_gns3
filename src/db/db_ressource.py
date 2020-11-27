@@ -17,6 +17,21 @@ fake_user_db = {
         "hashed_password": pwd_context.hash("secret"),
         "roles": ["authenticated", "user"],
     },
+    "nathan": {
+        "username": "nathan",
+        "hashed_password": pwd_context.hash("secret"),
+        "roles": ["authenticated", "user", "image_admin"],
+    },
+    "jean": {
+        "username": "jean",
+        "hashed_password": pwd_context.hash("secret"),
+        "roles": ["authenticated", "user", "template_admin"],
+    },
+    "jesus": {
+        "username": "jesus",
+        "hashed_password": pwd_context.hash("secret"),
+        "roles": [],
+    }
 }
 
 
@@ -29,7 +44,13 @@ fake_group_db = {
     "editor": {
         "users": ["alice"],
         "roles": ["template_admin", "image_admin", "user_admin"],
+        "scopes": [],
     },
+    "big_editor": {
+        "users": ["jesus"],
+        "roles": ["project_creator", "image_admin"],
+        "scopes": [],
+    }
 }
 
 """

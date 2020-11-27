@@ -7,11 +7,13 @@ data_base_user = {
     "alice" : "secret",
     "bob": "secret"
 }
+username = "alice"
+
 
 auth_header = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-def load_response(username):
+def load_response(usernames):
     response = {}
-    with open(f"response_{username}.test") as f:
+    with open(f"response_{usernames}.test") as f:
         line = f.readlines()
         for elt in line:
             res = elt.split(",")
