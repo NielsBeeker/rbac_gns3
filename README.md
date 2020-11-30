@@ -19,7 +19,6 @@ Working on a rbac implementation for gns3
 
     create a file with all endpoint and expected result
     
-    add more user, role and permission to test
     
     
     

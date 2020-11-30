@@ -1,5 +1,12 @@
 default_test = [("hello", "W2rld")]
 
+#load entry from a file
+def file_to_list(file):
+    with open(file) as f:
+        lines = f.readlines()
+    lines = [x.strip("\n") for x in lines]
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--stringinput",
