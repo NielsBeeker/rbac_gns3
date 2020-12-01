@@ -26,7 +26,7 @@ username = "alice"
 
 async def create_token():
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
-        token = await ac.post("v3/token2", headers=auth_header, json={"username":f"{username}", "password": "secret"})#TODO a gerer selon le endpoint
+        token = await ac.post("v3/token2", headers=auth_header, json={"username": f"{username}", "password": "secret"})#TODO a gerer selon le endpoint
         return token.json()
 
 

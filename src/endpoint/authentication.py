@@ -209,7 +209,7 @@ async def start_nodes(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/nodes/nodes1234")
+@router.get("/v3/projects/project1234/nodes/node1234")
 async def get_node(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
@@ -382,10 +382,4 @@ async def update_template(current_user: User = Depends(get_current_active_user))
 
 @router.post("/v3/templates/templates1234/duplicate")
 async def duplicate_template(current_user: User = Depends(get_current_active_user)):
-    return {"ok"}
-
-
-# todo idée : pour donner des ressources de base au user, plutot utiliser la base ressource acl que donner des scope à chaque users au debut
-@router.post("/v3/templates/templates/template1234")
-async def create_node_from_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}

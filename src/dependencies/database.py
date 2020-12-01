@@ -38,6 +38,7 @@ def get_users_groups(username):
 get user acl with the role and group
 """
 #todo fonction qui doit etre gérée par une query qui recoupère tout du user bien ordonné ou bien une autre maniere ?
+#this function will be a query
 def get_user_acl(user_roles, username):
     roles = []
     res_acl = []
