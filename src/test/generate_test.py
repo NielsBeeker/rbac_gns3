@@ -13,14 +13,14 @@ username = "alice"
 auth_header = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 def load_response(usernames):
     response = {}
-    with open(f"response_{usernames}.test") as f:
+    with open(f"{usernames}.test") as f:
         line = f.readlines()
         for elt in line:
             res = elt.split(",")
             response[(elt[0], elt[1])] == elt[3]
     return response
 
-    #return: { ("/v3/projects/project1234", "POST") : ("200", {"ok"})}
+    #return: { ("/v3/projects/project1234", "POST") : 200}
     #reour: 401 unautorize, 200, ok, 404 not found
 username = "alice"
 

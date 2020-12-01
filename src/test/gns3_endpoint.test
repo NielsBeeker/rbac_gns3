@@ -51,9 +51,3 @@
 /v3/templates/template1234,GET
 /v3/templates/template1234,DELETE
 /v3/templates/template1234/duplicate,POST
-
-
-
-
-
-
