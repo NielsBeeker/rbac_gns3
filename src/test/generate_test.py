@@ -14,7 +14,7 @@ auth_header = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 def load_response(usernames):
     response = {}
     #with open(f"{usernames}.test") as f:
-    with open(f"template.test") as f:
+    with open(f"{username}.test") as f:
         lines = f.readlines()
     lines = [x.strip("\n") for x in lines]
     for line in lines:
@@ -28,6 +28,7 @@ def load_response(usernames):
     #reour: 401 unautorize, 200, ok, 404 not found
 username = "alice"
 
+
 async def create_token():
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
         token = await ac.post("v3/token2", headers=auth_header, json={"username": f"{username}", "password": "secret"})#TODO a gerer selon le endpoint
@@ -40,6 +41,8 @@ good_response = load_response(username)
 
 def check_result(response, endpoint):
     tmp = good_response[endpoint]
+    if response.status_code == 404:
+        print(endpoint)
     assert response.status_code == tmp
 
 

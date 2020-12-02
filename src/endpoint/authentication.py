@@ -150,12 +150,12 @@ async def delete_drawing(current_user: User = Depends(get_current_active_user)):
 
 
 @router.get("/v3/gns3vm/engines")
-async def delete_drawing(current_user: User = Depends(get_current_active_user)):
+async def get_vm_engine(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
 @router.put("/v3/gns3vm")
-async def update_drawing(current_user: User = Depends(get_current_active_user)):
+async def update_vm_engine(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -179,17 +179,17 @@ async def delete_link(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/links/links1234/reset")
+@router.post("/v3/projects/project1234/links/link1234/reset")
 async def reset_link(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/links/links1234/capture/start")
+@router.post("/v3/projects/project1234/links/link1234/capture/start")
 async def start_capture_link(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/projects1234/links/link1234/capture/stream")
+@router.get("/v3/projects/project1234/links/link1234/capture/stream")
 async def stream_link(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
@@ -380,6 +380,6 @@ async def update_template(current_user: User = Depends(get_current_active_user))
     return {"ok"}
 
 
-@router.post("/v3/templates/templates1234/duplicate")
+@router.post("/v3/templates/template1234/duplicate")
 async def duplicate_template(current_user: User = Depends(get_current_active_user)):
     return {"ok"}

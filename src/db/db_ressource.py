@@ -84,7 +84,7 @@ fake_role_db = {
     "admin": [("/*", "all", "Allow")],
     "user": [],# quoi mettre ?
     "readonly": [("/v3/*", "read", "Allow")],
-    "template_admin": [("/v3/templates", "all", "Allow")],
+    "template_admin": [("/v3/templates", "all", "Allow"), ("/v3/templates/*", "all", "Allow")],
     "image_admin": [("/v3/images", "all", "Allow")],
     "user_admin": [("/v3/users", "all", "Allow")],
     "project_creator": [("/v3/projects", "create", "Allow")],
@@ -93,6 +93,6 @@ fake_role_db = {
 
 
 allow_scope_user_db = {
-    "bob": [("/v3/projects/project1/*", "all", "Allow"), ("/v3/projects/", "all", "Allow")],
-    "alice": [("/v3/projects/project1/*", "all", "Allow"), ("/v3/projects", "create", "Deny"), ("v3/projects/", "all", "Allow")]
+    "bob": [("/v3/projects/project1234/*", "all", "Allow"), ("/v3/projects", "all", "Allow")],
+    "alice": [("/v3/projects/project1234/*", "all", "Allow"), ("/v3/projects", "create", "Deny"), ("/v3/projects", "read", "Allow"), ("/v3/projects/load", "read", "Allow")]
 }

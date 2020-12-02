@@ -1,13 +1,13 @@
 /v3/version,GET
 /v3/version,POST
-/v3/iou_license,GET
+/v3/iou_license,PUT
 /v3/appliances,GET
 /v3/computes,GET
 /v3/computes,POST
 /v3/computes/compute1234,PUT
 /v3/computes/compute1234,DELETE
-/v3/computes/compute1234/drawings,GET
-/v3/computes/compute1234/drawings/drawing1234,DELETE
+/v3/projects/project1234/drawings,GET
+/v3/projects/project1234/drawings/drawing1234,DELETE
 /v3/gns3vm/engines,GET
 /v3/gns3vm,PUT
 /v3/projects/project1234/links,GET

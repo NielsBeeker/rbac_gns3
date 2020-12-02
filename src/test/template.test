@@ -1,13 +1,13 @@
 /v3/version,GET:401
 /v3/version,POST:401
-/v3/iou_license,GET:401
+/v3/iou_license,PUT:401
 /v3/appliances,GET:401
 /v3/computes,GET:401
 /v3/computes,POST:401
 /v3/computes/compute1234,PUT:401
 /v3/computes/compute1234,DELETE:401
-/v3/computes/compute1234/drawings,GET:401
-/v3/computes/compute1234/drawings/drawing1234,DELETE:401
+/v3/projects/project1234/drawings,GET:401
+/v3/projects/project1234/drawings/drawing1234,DELETE:401
 /v3/gns3vm/engines,GET:401
 /v3/gns3vm,PUT:401
 /v3/projects/project1234/links,GET:401
