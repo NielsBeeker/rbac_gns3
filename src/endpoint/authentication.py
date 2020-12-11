@@ -24,6 +24,19 @@ from dependencies.security import get_current_active_user, get_required_scopes_f
 from dependencies.database import get_user_acl
 from pydantic import BaseModel
 
+from src.db import models, fastapi_db
+
+models.Base.metadata.create_all(bind=fastapi_db.engine)
+
+def get_db():
+    db = fastapi_db.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
