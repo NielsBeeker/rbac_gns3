@@ -1,15 +1,16 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
+import databases
+from sqlalchemy import create_engine, MetaData
 
 #required to create a new DB with mysql on local session
 SQLALCHEMY_DATABASE_URL = "mysql://root:nia@localhost:3306/gns3_rbac"
+
+database = databases.Database(SQLALCHEMY_DATABASE_URL)
+
+metadata = MetaData()
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 
-SessionLocal = sessionmaker(autocommit=False, bind=engine)
+metadata.create_all(engine)
 
-Base = declarative_base()

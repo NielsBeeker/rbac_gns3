@@ -26,17 +26,6 @@ from pydantic import BaseModel
 
 from src.db import models, fastapi_db
 
-models.Base.metadata.create_all(bind=fastapi_db.engine)
-
-def get_db():
-    db = fastapi_db.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -45,6 +34,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 request with xxx-form-urlencoded
 sert de moyen d'authentification pour l'api
 """
+
+
+@router.on_event("startup")
+async def startup():
+    await fastapi_db.database.connect()
+
+
+@router.on_event("shutdown")
+async def shutdown():
+    await fastapi_db.database.disconnect()
 
 
 @router.post("/v3/token", response_model=Token)

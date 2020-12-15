@@ -13,7 +13,8 @@ from models.ObjectAcl import ObjectAcl
 from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 from dependencies.database import get_user
 from db.db_ressource import fake_user_db
-
+from db.fastapi_db import database
+from db.models import *
 
 """
 3 cas: to match ==> needed for match
@@ -24,6 +25,42 @@ from db.db_ressource import fake_user_db
 
 This function check if the 2 scopes are matching together with different cases
 """
+
+
+
+async def get_user_acl_from_db(database, username):
+    query = f"""SELECT
+                    resources.name, permissions.name, ace.allowed"
+                FROM
+                    ace, resources, resources_group, resources_group_members, users, users_group, users_group_members, permissions, permissions_groups, permissions_group_members
+                WHERE
+                    ace.rsc_group_id=resources_group.rsc_group_id AND resources_group.rsc_group_id=resources_group_members.resources_group_id AND
+                    resource.rsc_id=resources_group_members.resource_id AND resource.rsc_type='ENDPOINT' AND
+                    ace.perm_group_id=permissions_group.perm_group_id AND permissions_group.perm_group_id=permissions_group_members.permissions_group_id AND
+                    permissions.perm_id=permissions_group_members.permissions_group_id AND permissions.perm_id=permissions_group_members.permissions_id AND
+                    ace.user_group_id=users_group.user_group_id AND users_group.user-group_id=users_group_members.user_group_id
+                    AND users_group_members.user_id=users.user_id and users.name='{username}'
+                ORDER BY
+                    resources.name
+            """
+    res = await database.fetch_all(query=query)
+    return res
+async def get_ressource_acl_from_db(database,username ,permission):
+    query = f"""
+        SELECT
+            resources.name, ace.allowed
+        FROM
+            ace, resources, resources_group, resources_group_members, users, users_group, users_group_members, permissions, permissions groups, permissions_group_members
+        WHERE
+            ace.rsc_group_id=resources_group.rsc_group_id AND resources_group.rsc_group_id=resources_group_members.resources_group_id AND
+            resources.rsc_type='ENDPOINT' AND ace.perm_group_id=permissions_group.permissions_group_id AND permissions.perm_id=permissions_group_members/permission_id AND
+            permissions.name='{permission}' AND ace.user_group_id=users_group.user_group_id AND users_group.user_group_id=users_group_members.users_group_id AND
+            users.name='{username}'
+        ORDER BY
+            resources.name
+        """
+    res = await database.fetch_all(query=query)
+    return res
 
 def scope_matching(matching_scope: str, scope: str) -> bool:
     if matching_scope == scope:#cas 1
@@ -233,4 +270,3 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
-
