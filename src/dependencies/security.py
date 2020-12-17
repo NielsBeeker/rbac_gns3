@@ -29,19 +29,15 @@ This function check if the 2 scopes are matching together with different cases
 
 
 async def get_user_acl_from_db(database, username):
-    query = f"""SELECT
-                    resources.name, permissions.name, ace.allowed"
-                FROM
-                    ace, resources, resources_group, resources_group_members, users, users_group, users_group_members, permissions, permissions_groups, permissions_group_members
-                WHERE
-                    ace.rsc_group_id=resources_group.rsc_group_id AND resources_group.rsc_group_id=resources_group_members.resources_group_id AND
-                    resource.rsc_id=resources_group_members.resource_id AND resource.rsc_type='ENDPOINT' AND
-                    ace.perm_group_id=permissions_group.perm_group_id AND permissions_group.perm_group_id=permissions_group_members.permissions_group_id AND
-                    permissions.perm_id=permissions_group_members.permissions_group_id AND permissions.perm_id=permissions_group_members.permissions_id AND
-                    ace.user_group_id=users_group.user_group_id AND users_group.user-group_id=users_group_members.user_group_id
-                    AND users_group_members.user_id=users.user_id and users.name='{username}'
-                ORDER BY
-                    resources.name
+    query = f"""SELECT RESOURCES.NAME, PERMISSIONS.NAME, ACE.ALLOWED
+                FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
+                WHERE ACE.RSC_GROUP_ID=RESOURCES_GROUP.RSC_GROUP_ID AND RESOURCES_GROUP.RSC_GROUP_ID=RESOURCES_GROUP_MEMBERS.RESOURCES_GROUP_ID 
+                    AND RESOURCES.RSC_ID=RESOURCES_GROUP_MEMBERS.RESOURCE_ID AND RESOURCES.RSC_TYPE='ENDPOINT'
+                    AND ACE.PERM_GROUP_ID=PERMISSIONS_GROUPS.PERM_GROUP_ID AND PERMISSIONS_GROUPS.PERM_GROUP_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSIONS_GROUP_ID
+                    AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSIONS_GROUP_ID AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSION_ID 
+                    AND ACE.USER_GROUP_ID=USERS_GROUP.USER_GROUP_ID AND USERS_GROUP.USER_GROUP_ID=USERS_GROUP_MEMBERS.USERS_GROUP_ID
+                    AND USERS_GROUP_MEMBERS.USER_ID=USERS.USER_ID AND USERS.NAME='{username}'
+                ORDER BY RESOURCES.NAME;
             """
     res = await database.fetch_all(query=query)
     return res
@@ -58,6 +54,7 @@ async def get_ressource_acl_from_db(database,username ,permission):
             users.name='{username}'
         ORDER BY
             resources.name
+        ;
         """
     res = await database.fetch_all(query=query)
     return res
@@ -259,7 +256,6 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
-
     return user
 
 """

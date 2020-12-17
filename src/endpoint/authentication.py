@@ -20,7 +20,7 @@ from starlette.responses import RedirectResponse
 from models.User import User, Auth
 from models.ObjectAcl import ObjectAcl
 from fastapi import Depends
-from dependencies.security import get_current_active_user, get_required_scopes_from_endpoint
+from dependencies.security import get_current_active_user, get_required_scopes_from_endpoint, get_user_acl_from_db, get_ressource_acl_from_db
 from dependencies.database import get_user_acl
 from pydantic import BaseModel
 
@@ -45,6 +45,10 @@ async def startup():
 async def shutdown():
     await fastapi_db.database.disconnect()
 
+@router.get("/users/")
+async def get_users_acl():
+    res = await get_user_acl_from_db(database=fastapi_db.database, username="MARCEL")
+    return 0
 
 @router.post("/v3/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
