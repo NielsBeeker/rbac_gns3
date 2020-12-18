@@ -8,7 +8,7 @@ from starlette.requests import Request
 from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
 from models.Token import Token, TokenData
-from models.User import UserInDB, User
+from models.User import UserInDB, User2
 from models.ObjectAcl import ObjectAcl
 from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM, authenticate_user
 from dependencies.database import get_user
@@ -105,9 +105,9 @@ Ps: An objectAcl is an object with different fields about permissions needed for
 """
 def get_delete_permission_scope(path: str) -> ObjectAcl:
     if "snapshots" in path:
-        return ObjectAcl("node_snapshot", path)
+        return ObjectAcl("NODE_SNAPSHOT", path)
     if "links" in path:
-        return ObjectAcl("link_filter", path)
+        return ObjectAcl("LINK_FILTER", path)
     return ObjectAcl("DELETE", path)
 
 
@@ -117,8 +117,8 @@ This function create the ObjectAcl with the path of the endpoint for the get req
 #Todo determiner la logique pour determiner les differences entre les differents get
 def get_get_permission_scope(path: str) -> ObjectAcl:
     if "stream" in path:#condition a determiner pour la permission use
-        return ObjectAcl("use", path)
-    return ObjectAcl("read", path)
+        return ObjectAcl("USE", path)
+    return ObjectAcl("READ", path)
 
 
 """
@@ -127,15 +127,15 @@ This function create the ObjectAcl with the path of the endpoint for the post re
 #Todo determiner la logique pour determiner les differences entre les differents post
 def get_post_permission_scope(path: str) -> ObjectAcl:
     # create project: droit: project_creator
-    return ObjectAcl("create", path)
+    return ObjectAcl("CREATE", path)
 
 """
 This function create the ObjectAcl with the path of the endpoint for the get request
 """
 def get_put_permission_scope(path: str) -> ObjectAcl:
     if 'links' in path:
-        return ObjectAcl("link_filter", path)
-    return ObjectAcl('update', path)
+        return ObjectAcl("LINK_FILTER", path)
+    return ObjectAcl('UPDATE', path)
 
 
 """
@@ -207,8 +207,12 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    query = f"""SELECT USER_ID FROM USERS WHERE USERNAME='{username}';"""
-    user_id = database.fetch_all(query=query)
+    query = f"""SELECT USER_ID FROM USERS WHERE NAME='{username}';"""
+    await database.connect()
+    user_ids = await database.fetch_all(query=query)
+    user_id = []
+    user_id.append(user_ids[0])
+
     if user_id == []:
         raise credentials_exception
 
@@ -218,13 +222,15 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
-    return User(usernmae=username)
+
+    bis = User2(username=username)
+    return bis
 
 """
 This function is the one to depends with.
 It will manage automatically the permission of the user
 """
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(current_user: User2 = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user

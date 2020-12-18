@@ -18,7 +18,7 @@ class TokenData:
     scopes: [(str, str, str)] = []
 
 
-    def __init__(self, username, scopes, token_role):
+    def __init__(self, username, scopes):
         self.username = username
         self.scopes = scopes
 

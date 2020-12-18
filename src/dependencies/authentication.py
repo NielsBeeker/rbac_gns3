@@ -15,7 +15,7 @@ from passlib.context import CryptContext
 
 
 from dependencies.database import get_user
-from models.User import UserInDB, User
+from models.User import UserInDB, User2
 from db import fastapi_db, models
 
 
@@ -31,15 +31,15 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-
-def authenticate_user(username: str, password: str) -> User:
+async def authenticate_user(username: str, password: str) -> User2:
     query = f"""SELECT PASSWORD FROM USERS WHERE USERNAME='{username}';"""
-    user_password = fastapi_db.database.fetch_all(query=query)
-    if not user_password == []:
+    user_password = await fastapi_db.database.fetch_all(query=query)
+    if user_password == []:
         return False
-    if not verify_password(password, user_password):
+    #if not verify_password(password, user_password):
+    if password != user_password:
         return False
-    return User(username=username)
+    return User2(username=username)
 
 
 #TODO gerer la notion de refresh avec les tokens
