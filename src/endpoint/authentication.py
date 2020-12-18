@@ -47,7 +47,7 @@ async def shutdown():
 
 @router.get("/users/")
 async def get_users_acl():
-    res = await get_user_acl_from_db(database=fastapi_db.database, username="MARCEL")
+    res = await get_user_acl_from_db(database=fastapi_db.database, username="MAURICE")
     return 0
 
 @router.post("/v3/token", response_model=Token)
