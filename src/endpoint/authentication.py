@@ -28,13 +28,7 @@ from src.db import models, fastapi_db
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-"""
-request with xxx-form-urlencoded
-sert de moyen d'authentification pour l'api
-"""
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token")
 
 @router.on_event("startup")
 async def startup():
@@ -47,8 +41,13 @@ async def shutdown():
 
 @router.get("/users/")
 async def get_users_acl():
-    res = await get_user_acl_from_db(database=fastapi_db.database, username="MAURICE")
+    res = await get_user_acl_from_db(database=fastapi_db.database, username="MARCEL")
     return 0
+
+"""
+request with xxx-form-urlencoded
+sert de moyen d'authentification pour l'api
+"""
 
 @router.post("/v3/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -61,11 +60,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     # get scope related to group/role
-    scope, role = get_user_acl(user.roles, user.username)
+    scope = get_user_acl_from_db(fastapi_db.database, user.username)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "scopes": scope,
-              "role": role,
               }, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
@@ -85,7 +83,7 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user = authenticate_user(fake_user_db, auth.username, auth.password)
+    user = authenticate_user(auth.username, auth.password)
 
     if not user:
         raise HTTPException(
@@ -94,12 +92,11 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
             headers={"WWW-Authenticate": "Bearer"},
         )
     # get scope related to group/role
-    scope, role = get_user_acl(user.roles, user.username)
+    scope = get_user_acl_from_db(fastapi_db.database, user.username)
     # todo gerer le fait que les roles peuvent deny
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "scopes": scope,
-              "role": role,
               }, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}

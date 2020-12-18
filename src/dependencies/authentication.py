@@ -16,6 +16,7 @@ from passlib.context import CryptContext
 
 from dependencies.database import get_user
 from models.User import UserInDB, User
+from db import fastapi_db, models
 
 
 router = APIRouter()
@@ -23,7 +24,7 @@ router = APIRouter()
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -31,13 +32,14 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def authenticate_user(fake_db, username: str, password: str) -> UserInDB:
-    user = get_user(fake_db, username)
-    if not user:
+def authenticate_user(username: str, password: str) -> User:
+    query = f"""SELECT PASSWORD FROM USERS WHERE USERNAME='{username}';"""
+    user_password = fastapi_db.database.fetch_all(query=query)
+    if not user_password == []:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user_password):
         return False
-    return user
+    return User(username=username)
 
 
 #TODO gerer la notion de refresh avec les tokens

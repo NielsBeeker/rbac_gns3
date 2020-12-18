@@ -7,7 +7,7 @@ This class contains User model
 class User(BaseModel):
     username: str
     disabled: Optional[bool] = None
-    roles: List[Any]
+    #roles: List[Any]
 
 """
 Inherits from User for database use

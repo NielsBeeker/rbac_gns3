@@ -10,7 +10,7 @@ from pydantic import BaseModel, ValidationError
 from models.Token import Token, TokenData
 from models.User import UserInDB, User
 from models.ObjectAcl import ObjectAcl
-from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
+from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM, authenticate_user
 from dependencies.database import get_user
 from db.db_ressource import fake_user_db
 from db.fastapi_db import database
@@ -34,13 +34,14 @@ async def get_user_acl_from_db(database, username):
                 WHERE ACE.RSC_GROUP_ID=RESOURCES_GROUP.RSC_GROUP_ID AND RESOURCES_GROUP.RSC_GROUP_ID=RESOURCES_GROUP_MEMBERS.RESOURCES_GROUP_ID 
                     AND RESOURCES.RSC_ID=RESOURCES_GROUP_MEMBERS.RESOURCE_ID AND RESOURCES.RSC_TYPE='ENDPOINT'
                     AND ACE.PERM_GROUP_ID=PERMISSIONS_GROUPS.PERM_GROUP_ID AND PERMISSIONS_GROUPS.PERM_GROUP_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSIONS_GROUP_ID
-                    AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSIONS_GROUP_ID AND ACE.USER_GROUP_ID=USERS_GROUP.USER_GROUP_ID 
+                    AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSION_ID AND ACE.USER_GROUP_ID=USERS_GROUP.USER_GROUP_ID 
                     AND USERS_GROUP.USER_GROUP_ID=USERS_GROUP_MEMBERS.USERS_GROUP_ID
                     AND USERS_GROUP_MEMBERS.USER_ID=USERS.USER_ID AND USERS.NAME='{username}'
                 ORDER BY RESOURCES.NAME;
             """
     res = await database.fetch_all(query=query)
     return res
+
 async def get_ressource_acl_from_db(database,username ,permission):
     query = f"""
         SELECT
@@ -60,25 +61,10 @@ async def get_ressource_acl_from_db(database,username ,permission):
     return res
 
 def scope_matching(matching_scope: str, scope: str) -> bool:
-    if matching_scope == scope:#cas 1
+    #actual scope matching can be more specify on scope check, can be modify to be more fast
+    if matching_scope == scope:
         return True
-    sub_match = matching_scope.split("/") # /v3/projects => ["", "v3", "projects"]
-    sub_scope = scope.split("/")
-    try:
-        for i in range(1, len(sub_match)): ## skiping the first elt which is "" because of the split on "/v3/projects"
-            if not sub_scope[i]:#en cas de probleme de check
-                return False
-            if sub_scope[i] and sub_scope[i] != sub_match[i]: # cas 3 ou
-                if sub_scope[i] == "*":
-                    return True
-                return False
-        tmp = len(sub_match)
-        if sub_scope[tmp]:
-            if not sub_scope[tmp] == "*":#cas 2
-                return False
-    except IndexError:
-        return False
-    return True
+    return False
 
 """
 This function get base acl ressource from database or something else
@@ -172,39 +158,14 @@ This function is the one that verify everything
 """
 #TODO doit-on verifier si le user est bien authenticated sur une api ?
 def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
-    #todo this case must not be use => we cant give base rights to object, only user have permission
-    """ #check for role
-    for endpoint_role in endpoint_object.roles:
-        for user_role in user_data.token_role:
-            if user_role == endpoint_role[0]: #on recuperer seulement le role du user
-                if endpoint_role[1] == endpoint_object.action:
-                    return True"""
 
-    #before
-    """has_role = False
-    #check allowed scope
-    for elt in user_data.scopes:
-        if elt[1] == endpoint_object.action or elt[1] == "all":
-            if scope_matching(endpoint_object.scopes, elt[0]):
-                has_role = True
-                break
-    #check denied scope
-    for elt in user_data.deny_uri:
-        if elt[1] == endpoint_object.action or elt[1] == "all":
-            if scope_matching(endpoint_object.scopes, elt[0]):
-                has_role = False"""
-
-
-    #after
-
-    #meme concept que le pare-feu, je check les acl les une à la suite des autres et je return false/true au premier match
     try:
         for elt in user_data.scopes:
-            if elt[1] == endpoint_object.action or elt[1] == "all":
+            if elt[1] == endpoint_object.action:
                 res = scope_matching(endpoint_object.roles, elt[0])
-                if res and elt[2] == "Allow":#todo elt[2] a rajouter avec le allow, deny aux scopes
+                if res and elt[2] == 1:#1 mean True
                     return True
-                elif res and elt[2] == "Deny":
+                elif res and elt[2] == 0: #0 mean false
                     return False
     except IndexError:
         return False
@@ -242,12 +203,13 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
                 token_scopes.append((elt[0], elt[1], elt[2])) #todo add index check
         except IndexError:
             raise credentials_exception
-        token_role = payload.get("role", [])
-        token_data = TokenData(scopes=token_scopes, username=username, token_role=token_role)
+        #token_role = payload.get("role", [])
+        token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = get_user(fake_user_db, username=token_data.username)
-    if user is None:
+    query = f"""SELECT USER_ID FROM USERS WHERE USERNAME='{username}';"""
+    user_id = database.fetch_all(query=query)
+    if user_id == []:
         raise credentials_exception
 
     if not verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value):
@@ -256,7 +218,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
-    return user
+    return User(usernmae=username)
 
 """
 This function is the one to depends with.
