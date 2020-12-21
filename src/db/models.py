@@ -2,7 +2,7 @@ import sqlalchemy
 
 from .fastapi_db import metadata
 
-User = sqlalchemy.Table(
+db_User = sqlalchemy.Table(
     "USERS",
     metadata,
     sqlalchemy.Column("USER_ID", sqlalchemy.BigInteger, primary_key=True, index=True, nullable=False),

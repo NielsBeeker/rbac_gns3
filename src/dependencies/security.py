@@ -8,7 +8,7 @@ from starlette.requests import Request
 from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
 from models.Token import Token, TokenData
-from models.User import UserInDB, User2
+from models.User import UserInDB, User
 from models.ObjectAcl import ObjectAcl
 from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM, authenticate_user
 from dependencies.database import get_user
@@ -230,7 +230,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
 This function is the one to depends with.
 It will manage automatically the permission of the user
 """
-async def get_current_active_user(current_user: User2 = Depends(get_current_user)):
+async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user

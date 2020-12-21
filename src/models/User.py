@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from typing import Optional, Any, List
+from typing import Optional
 
 """
 This class contains User model
 """
-class User2:
+class User:
     username: str
     disabled: Optional[bool] = None
     #roles: List[Any]
@@ -14,7 +14,7 @@ class User2:
 """
 Inherits from User for database use
 """
-class UserInDB(User2):
+class UserInDB(User):
     hashed_password: str
 
 """

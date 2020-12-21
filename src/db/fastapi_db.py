@@ -12,5 +12,3 @@ engine = sqlalchemy.create_engine(SQLALCHEMY_DATABASE_URL)
 
 metadata.create_all(engine)
 
-engine = engine
-
