@@ -12,7 +12,7 @@ from dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_M
 from models.User import User, Auth
 from models.ObjectAcl import ObjectAcl
 from fastapi import Depends
-from dependencies.security import get_current_active_user, get_user_acl_from_db
+from dependencies.security import get_current_active_user, get_user_acl_from_db, get_ressource_acl_from_db
 
 
 from src.db import models, fastapi_db
@@ -30,6 +30,10 @@ async def startup():
 async def shutdown():
     await fastapi_db.database.disconnect()
 
+@router.get("/ressources")
+async def get_ressource():
+    res = await get_ressource_acl_from_db(fastapi_db.database, "MARCEL", 'UPDATE')
+    return 1
 """
 request with xxx-form-urlencoded
 sert de moyen d'authentification pour l'api

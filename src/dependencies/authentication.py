@@ -32,7 +32,7 @@ async def authenticate_user(username: str, password: str) -> User:
     query = f"""SELECT PASSWORD FROM USERS WHERE NAME='{username}';"""
     await fastapi_db.database.connect()
     res = await fastapi_db.database.fetch_one(query=query)
-    if not res[1]:
+    if not res[0]:
         return False
     user_password = res[0]#res = (elt,)
     #if not verify_password(password, user_password): mot de passe non haché dans la BDD

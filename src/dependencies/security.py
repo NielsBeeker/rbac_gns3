@@ -43,20 +43,15 @@ async def get_user_acl_from_db(database, username):
     return res
 
 async def get_ressource_acl_from_db(database,username ,permission):
-    query = f"""
-        SELECT
-            resources.name, ace.allowed
-        FROM
-            ace, resources, resources_group, resources_group_members, users, users_group, users_group_members, permissions, permissions groups, permissions_group_members
-        WHERE
-            ace.rsc_group_id=resources_group.rsc_group_id AND resources_group.rsc_group_id=resources_group_members.resources_group_id AND
-            resources.rsc_type='ENDPOINT' AND ace.perm_group_id=permissions_group.permissions_group_id AND permissions.perm_id=permissions_group_members/permission_id AND
-            permissions.name='{permission}' AND ace.user_group_id=users_group.user_group_id AND users_group.user_group_id=users_group_members.users_group_id AND
-            users.name='{username}'
-        ORDER BY
-            resources.name
-        ;
-        """
+    query = f"""SELECT RESOURCES.NAME, ACE.ALLOWED
+                FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
+                WHERE ACE.RSC_GROUP_ID=RESOURCES_GROUP.RSC_GROUP_ID AND RESOURCES_GROUP.RSC_GROUP_ID=RESOURCES_GROUP_MEMBERS.RESOURCES_GROUP_ID
+                    AND RESOURCES.RSC_ID=RESOURCES_GROUP_MEMBERS.RESOURCE_ID AND RESOURCES.RSC_TYPE='ENDPOINT' 
+                    AND ACE.PERM_GROUP_ID=PERMISSIONS_GROUPS.PERM_GROUP_ID AND PERMISSIONS_GROUPS.PERM_GROUP_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSIONS_GROUP_ID
+                    AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSION_ID AND PERMISSIONS.NAME='{permission}'
+                    AND ACE.USER_GROUP_ID=USERS_GROUP.USER_GROUP_ID AND USERS_GROUP.USER_GROUP_ID=USERS_GROUP_MEMBERS.USERS_GROUP_ID
+                    AND USERS_GROUP_MEMBERS.USER_ID=USERS.USER_ID AND USERS.NAME='{username}'
+                ORDER BY RESOURCES.NAME;"""
     res = await database.fetch_all(query=query)
     return res
 
@@ -208,23 +203,20 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     except (JWTError, ValidationError):
         raise credentials_exception
     query = f"""SELECT USER_ID FROM USERS WHERE NAME='{username}';"""
-    await database.connect()
-    user_ids = await database.fetch_all(query=query)
-    user_id = []
-    user_id.append(user_ids[0])
-
-    if user_id == []:
+    if not database.is_connected:
+        await database.connect()
+    res = await database.fetch_one(query=query)
+    if not res[0]:
         raise credentials_exception
-
     if not verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value):
         raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
-            )
+        )
 
-    bis = User2(username=username)
-    return bis
+    return User(username=username)
+
 
 """
 This function is the one to depends with.
