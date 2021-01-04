@@ -28,7 +28,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-async def authenticate_user(username: str, password: str) -> User:
+async def authenticate_user(username: str, password: str) -> bool:
     query = f"""SELECT PASSWORD FROM USERS WHERE NAME='{username}';"""
     await fastapi_db.database.connect()
     res = await fastapi_db.database.fetch_one(query=query)

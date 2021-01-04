@@ -16,18 +16,6 @@ from db.db_ressource import fake_user_db
 from db.fastapi_db import database
 from db.models import *
 
-"""
-3 cas: to match ==> needed for match
-1-get  : v3/projects ==> v3/projects obligatoire
-2-post : v3/projetcs/1234 ==> v3/projects/1234/*
-3-post : v3/projetcs/1234/nodes/12345/duplicate ==> v3/projects/1234/nodes/12345/*
-                                                ou   v3/projetcs/1234/*
-
-This function check if the 2 scopes are matching together with different cases
-"""
-
-
-
 async def get_user_acl_from_db(database, username):
     query = f"""SELECT RESOURCES.NAME, PERMISSIONS.NAME, ACE.ALLOWED
                 FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
@@ -56,7 +44,7 @@ async def get_ressource_acl_from_db(database,username ,permission):
     return res
 
 def scope_matching(matching_scope: str, scope: str) -> bool:
-    #actual scope matching can be more specify on scope check, can be modify to be more fast
+    #actual scope matching can be more specify on scope check, can be modify to be faster
     if matching_scope == scope:
         return True
     return False
