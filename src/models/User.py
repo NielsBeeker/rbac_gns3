@@ -11,7 +11,6 @@ This class contains User model
 class User:
     username: str
     disabled: Optional[bool] = None
-    #roles: List[Any]
     def __init__(self, username):
         self.username = username
 
