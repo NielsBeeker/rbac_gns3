@@ -2,6 +2,8 @@ import sqlalchemy
 
 from .fastapi_db import metadata
 
+#databse files, needed ?
+
 db_User = sqlalchemy.Table(
     "USERS",
     metadata,

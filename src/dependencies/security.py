@@ -2,20 +2,21 @@
 This file contains middleware for security
 """
 
-from fastapi import Depends, FastAPI, HTTPException, Security, status, APIRouter
-
+from fastapi import Depends, HTTPException, status
 from starlette.requests import Request
 from jose import JWTError, jwt
-from pydantic import BaseModel, ValidationError
-from models.Token import Token, TokenData
-from models.User import UserInDB, User
-from models.ObjectAcl import ObjectAcl
-from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM, authenticate_user
-from dependencies.database import get_user
-from db.db_ressource import fake_user_db
-from db.fastapi_db import database
-from db.models import *
+from pydantic import ValidationError
+from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
 
+from models.ObjectAcl import Endpoint
+from db.fastapi_db import database
+from models.Token import TokenData
+from models.User import User
+
+
+"""
+This function get all the user_acl from the given user.
+"""
 async def get_user_acl_from_db(database, username):
     query = f"""SELECT RESOURCES.NAME, PERMISSIONS.NAME, ACE.ALLOWED, ACE.PRIORITY
                 FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
@@ -30,6 +31,9 @@ async def get_user_acl_from_db(database, username):
     res = await database.fetch_all(query=query)
     return res
 
+"""
+Needed ?
+"""
 async def get_ressource_acl_from_db(database,username ,permission):
     query = f"""SELECT RESOURCES.NAME, ACE.ALLOWED
                 FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
@@ -43,65 +47,64 @@ async def get_ressource_acl_from_db(database,username ,permission):
     res = await database.fetch_all(query=query)
     return res
 
-
-#matching scope: uri from the endpoint requested
+"""
+This function return True if the scope match with the url of the endpoint.
+"""
 def scope_matching(matching_scope: str, scope: str) -> bool:
-    #actual scope matching can be more specify on scope check, can be modify to be faster
-    m_len = len(matching_scope)
-    if len(scope) > m_len:
-        return False # si la permission est plus longue que celle du endpoint ça ne match forcement pas
-    for i in range (m_len):
+    #matching scope is the endpoint url
+    ms_len = len(matching_scope)
+    if len(scope) > ms_len:
+        return False #if the length of the scope is longer than one of the matching scope, it can't match
+    for i in range (ms_len):
         if i == len(scope) - 1 and scope[i] == '/':
-            return True
+            return True # the / at the end of the url mean that you have the right to request endpoint/* (example: /v3/projects/ mean you can request /v3/projects/AAAA-BBBB-1111/)
         elif scope[i] != matching_scope[i]:
             return False
     return True
 
 
 """
-This function create the ObjectAcl with the path of the endpoint for the delete request
-
-Ps: An objectAcl is an object with different fields about permissions needed for current endpoint, the path, and the ressource needed for the endpoint 
+This function create the ObjectAcl with the path of the endpoint for the delete request.
 """
-def get_delete_permission_scope(path: str) -> ObjectAcl:
+def get_delete_permission_scope(path: str) -> Endpoint:
     if "snapshots" in path:
-        return ObjectAcl("NODE_SNAPSHOT", path)
+        return Endpoint("NODE_SNAPSHOT", path)
     if "links" in path:
-        return ObjectAcl("LINK_FILTER", path)
-    return ObjectAcl("DELETE", path)
+        return Endpoint("LINK_FILTER", path)
+    return Endpoint("DELETE", path)
 
 
 """
 This function create the ObjectAcl with the path of the endpoint for the get request
 """
 #Todo determiner la logique pour determiner les differences entre les differents get
-def get_get_permission_scope(path: str) -> ObjectAcl:
+def get_get_permission_scope(path: str) -> Endpoint:
     if "stream" in path:#condition a determiner pour la permission use
-        return ObjectAcl("USE", path)
-    return ObjectAcl("READ", path)
+        return Endpoint("USE", path)
+    return Endpoint("READ", path)
 
 
 """
 This function create the ObjectAcl with the path of the endpoint for the post request
 """
 #Todo determiner la logique pour determiner les differences entre les differents post
-def get_post_permission_scope(path: str) -> ObjectAcl:
+def get_post_permission_scope(path: str) -> Endpoint:
     # create project: droit: project_creator
-    return ObjectAcl("CREATE", path)
+    return Endpoint("CREATE", path)
 
 """
 This function create the ObjectAcl with the path of the endpoint for the get request
 """
-def get_put_permission_scope(path: str) -> ObjectAcl:
+def get_put_permission_scope(path: str) -> Endpoint:
     if 'links' in path:
-        return ObjectAcl("LINK_FILTER", path)
-    return ObjectAcl('UPDATE', path)
+        return Endpoint("LINK_FILTER", path)
+    return Endpoint('UPDATE', path)
 
 
 """
 This function return the good object for the endpoint
 """
-def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
+def get_required_scopes_from_endpoint(request: Request) -> Endpoint:
     if request.method == "POST":
         return get_post_permission_scope(request.url.path)
     elif request.method == "PUT":
@@ -110,14 +113,12 @@ def get_required_scopes_from_endpoint(request: Request) -> ObjectAcl:
         return get_get_permission_scope(request.url.path)
     else:
         return get_delete_permission_scope(request.url.path)
-#changement : ne recupere plus les acl en fonction des ressources
 
 
 """
 This function is the one that verify everything
 """
-#TODO doit-on verifier si le user est bien authenticated sur une api ?
-def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value: str):
+def verify_permission(endpoint_object: Endpoint, user_data):
 
     try:
         for elt in user_data.scopes:
@@ -129,20 +130,14 @@ def verify_permission(endpoint_object: ObjectAcl, user_data, authenticate_value:
                     return False
     except IndexError:
         return False
-    # base case
-    return False
+    return False # base case
 
 
 """
 This function will get the token and decode it.
 Then it verifies that the user has the right to call this endpoint.
 """
-#Todo Besoin de laisser autant d'information dans le token ou il suffit de récupérer ça de la base de donnée ?
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
-    #if security_scopes.scopes:
-    #    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
-    #else:
-    #    authenticate_value = f"Bearer"
     authenticate_value = f"Bearer"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -155,15 +150,15 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        tmp_token_scopes = payload.get("scopes", [])# get scope, username, deny_scope, role from user's token
-        #for some reason when you encode a list a tuple if become a list of list with 2 elt
+        tmp_token_scopes = payload.get("scopes", []) # get user acl
+
+        #for some reason when you encode a list a triple if become a list of list with 3 elt
         token_scopes = []
         try:
             for elt in tmp_token_scopes:
-                token_scopes.append((elt[0], elt[1], elt[2])) #todo add index check
+                token_scopes.append((elt[0], elt[1], elt[2])) #creating a new list of triples
         except IndexError:
             raise credentials_exception
-        #token_role = payload.get("role", [])
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
@@ -173,7 +168,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     res = await database.fetch_one(query=query)
     if not res[0]:
         raise credentials_exception
-    if not verify_permission(get_required_scopes_from_endpoint(request), token_data, authenticate_value):
+    if not verify_permission(get_required_scopes_from_endpoint(request), token_data):
         raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not enough permissions",

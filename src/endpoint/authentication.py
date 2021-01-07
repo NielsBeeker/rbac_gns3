@@ -1,21 +1,16 @@
-from fastapi import Depends, HTTPException, Security, status, APIRouter
-from datetime import datetime, timedelta
-from typing import List, Optional, Union, Any
-from fastapi.responses import JSONResponse
+from fastapi import Depends, HTTPException, status, APIRouter
+from datetime import timedelta
+from typing import Optional
 from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
-from models.Token import Token, TokenData
+
+from models.Token import Token
 from dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-
 from models.User import User, Auth
-from models.ObjectAcl import ObjectAcl
-from fastapi import Depends
 from dependencies.security import get_current_active_user, get_user_acl_from_db, get_ressource_acl_from_db
-
-
-from src.db import models, fastapi_db
+from src.db import fastapi_db
 
 router = APIRouter()
 
@@ -34,11 +29,12 @@ async def shutdown():
 async def get_ressource():
     res = await get_ressource_acl_from_db(fastapi_db.database, "MARCEL", 'UPDATE')
     return 1
+
+
 """
 request with xxx-form-urlencoded
-sert de moyen d'authentification pour l'api
+This function is the first way to authenticate on the API.
 """
-
 @router.post("/v3/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
@@ -49,10 +45,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # get scope related to group/role
     scopes = await get_user_acl_from_db(fastapi_db.database, form_data.username)
     scope = []
-    for elt in scopes:#cant use rows for access token
+    for elt in scopes:# convert row into string in a new list
         scope.append((elt[0], elt[1], elt[2]))
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -65,10 +60,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 """
 request with -d {"username":"username", "password": "secret"}
-sert de moyen d'authentification en envoyant un curl avec un --data
+This function is the second way to authenticate on the API.
 """
-
-
 @router.post("/v3/token2", response_model=Token)
 async def login_for_access_token1(auth: Optional[Auth] = None):
     if auth is None:
@@ -85,10 +78,9 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # get scope related to group/role
     scopes = await get_user_acl_from_db(fastapi_db.database, auth.username)
     scope = []
-    for elt in scopes:  # cant use rows for access token
+    for elt in scopes:  # convert row into string in a new list
         scope.append((elt[0], elt[1], elt[2]))
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -100,12 +92,13 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
 
 
 """
-Simple endpoints pour donner un exemple
+An example of a specific endpoint.
 """
-
-
-@router.get("/v2/projects/AAAA-BBBB-1113/nodes/CCCC-BBBB-1111")
-async def get_project_specific(current_user: User = Depends(get_current_active_user)):
+#@router.get("/v3/projects/AAAA-BBBB-1113/nodes/CCCC-BBBB-1111")
+@router.get("/v3/projects/{project_id}/nodes/{node_id}")
+async def get_project_specific(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
+    if project_id == "" or node_id == "":
+        return {"ko"}
     return {"ok"}
 
 @router.get("/v3/version")

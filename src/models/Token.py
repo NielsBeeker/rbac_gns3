@@ -1,3 +1,7 @@
+"""
+This file contains the Token class and the TokenData class.
+"""
+
 from typing import Optional, List
 from pydantic import BaseModel
 

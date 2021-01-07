@@ -1,3 +1,7 @@
+"""
+This file contains the User class, the UserInDB class and the Auth class.
+"""
+
 from pydantic import BaseModel
 from typing import Optional
 

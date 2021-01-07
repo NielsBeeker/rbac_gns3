@@ -1,7 +1,12 @@
 """
+This file contains the Endpoint class.
+"""
+
+
+"""
 This class contains the different things about endpoint required for user verification
 """
-class ObjectAcl:
+class Endpoint:
     def __init__(self, action: str, roles: [(str, str)]):
         self.action = action
 
