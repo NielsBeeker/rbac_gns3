@@ -17,7 +17,7 @@ from db.fastapi_db import database
 from db.models import *
 
 async def get_user_acl_from_db(database, username):
-    query = f"""SELECT RESOURCES.NAME, PERMISSIONS.NAME, ACE.ALLOWED
+    query = f"""SELECT RESOURCES.NAME, PERMISSIONS.NAME, ACE.ALLOWED, ACE.PRIORITY
                 FROM ACE, RESOURCES, RESOURCES_GROUP, RESOURCES_GROUP_MEMBERS, USERS, USERS_GROUP, USERS_GROUP_MEMBERS, PERMISSIONS, PERMISSIONS_GROUPS, PERMISSIONS_GROUP_MEMBERS
                 WHERE ACE.RSC_GROUP_ID=RESOURCES_GROUP.RSC_GROUP_ID AND RESOURCES_GROUP.RSC_GROUP_ID=RESOURCES_GROUP_MEMBERS.RESOURCES_GROUP_ID 
                     AND RESOURCES.RSC_ID=RESOURCES_GROUP_MEMBERS.RESOURCE_ID AND RESOURCES.RSC_TYPE='ENDPOINT'
@@ -25,7 +25,7 @@ async def get_user_acl_from_db(database, username):
                     AND PERMISSIONS.PERM_ID=PERMISSIONS_GROUP_MEMBERS.PERMISSION_ID AND ACE.USER_GROUP_ID=USERS_GROUP.USER_GROUP_ID 
                     AND USERS_GROUP.USER_GROUP_ID=USERS_GROUP_MEMBERS.USERS_GROUP_ID
                     AND USERS_GROUP_MEMBERS.USER_ID=USERS.USER_ID AND USERS.NAME='{username}'
-                ORDER BY RESOURCES.NAME;
+                ORDER BY ACE.PRIORITY;
             """
     res = await database.fetch_all(query=query)
     return res
@@ -43,43 +43,20 @@ async def get_ressource_acl_from_db(database,username ,permission):
     res = await database.fetch_all(query=query)
     return res
 
+
+#matching scope: uri from the endpoint requested
 def scope_matching(matching_scope: str, scope: str) -> bool:
     #actual scope matching can be more specify on scope check, can be modify to be faster
-    if matching_scope == scope:
-        return True
-    return False
+    m_len = len(matching_scope)
+    if len(scope) > m_len:
+        return False # si la permission est plus longue que celle du endpoint ça ne match forcement pas
+    for i in range (m_len):
+        if i == len(scope) - 1 and scope[i] == '/':
+            return True
+        elif scope[i] != matching_scope[i]:
+            return False
+    return True
 
-"""
-This function get base acl ressource from database or something else
-"""
-#todo delete this function and the ressource in db
-"""def get_base_acl_from_ressource(path: str):
-    if "computes" in path:
-        return base_acl_db["compute"]
-    if "appliances" in path:
-        return base_acl_db["appliance"]
-    if "drawings" in path:
-        return base_acl_db["drawing"]
-    if "links" in path:
-        return base_acl_db["link"]
-    if "nodes" in path:
-        return base_acl_db["node"]
-    if "users" in path: # pour futur endpoint api ,pas encore mis en place
-        return base_acl_db["user"]
-    if "groups" in path:#
-        return base_acl_db["group"]
-    if "snapshot" in path:
-        return base_acl_db["snapshot"]
-    if "templates" in path:
-        return base_acl_db["template_public"]
-    if "images" in path:
-        return base_acl_db["image_public"]
-    if "symbols" in path:
-        return base_acl_db["symbol_public"]
-    if "projects" in path:
-        return base_acl_db["project"]
-    return base_acl_db["controller"]
-"""
 
 """
 This function create the ObjectAcl with the path of the endpoint for the delete request

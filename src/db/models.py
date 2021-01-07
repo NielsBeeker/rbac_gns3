@@ -83,4 +83,5 @@ Ace = sqlalchemy.Table(
     sqlalchemy.Column("USER_GROUP_ID", sqlalchemy.BigInteger, sqlalchemy.ForeignKey("USERS_GROUP.USERS_GROUP_ID"), nullable=False),
     sqlalchemy.Column("RSC_GROUP_ID", sqlalchemy.BigInteger, sqlalchemy.ForeignKey("RESOURCES_GROUP.RSC_GROUP_ID"), nullable=False),
     sqlalchemy.Column("PERM_GROUP_ID", sqlalchemy.BigInteger, sqlalchemy.ForeignKey("PERMISSIONS_GROUPS.PERM_GROUP_ID"), nullable=False),
+    sqlalchemy.Column("PRIORITY", sqlalchemy.Integer, nullable=False),
 )
