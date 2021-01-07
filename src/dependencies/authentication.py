@@ -19,10 +19,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
+"""
+This function check if the 2 encrypted passwords match.
+"""
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+"""
+This function return True if the user exists in the database.
+"""
 async def authenticate_user(username: str, password: str) -> bool:
     query = f"""SELECT PASSWORD FROM USERS WHERE NAME='{username}';"""
     await fastapi_db.database.connect()
