@@ -131,28 +131,28 @@ async def create_compute(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.put("/v3/computes/compute1234")
-async def update_compute(current_user: User = Depends(get_current_active_user)):
+@router.put("/v3/computes/{compute_id}")
+async def update_compute(compute_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/computes/compute1234")
-async def delete_compute(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/computes/{compute_id}")
+async def delete_compute(compute_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/drawings")
-async def get_drawing(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/drawings")
+async def get_drawing(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/drawings")
-async def create_drawing(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/drawings")
+async def create_drawing(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/projects/project1234/drawings/drawing1234")
-async def delete_drawing(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/projects/{project_id}/drawings/{drawing_id}")
+async def delete_drawing(project_id: str, drawing_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -166,109 +166,108 @@ async def update_vm_engine(current_user: User = Depends(get_current_active_user)
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/links")
-async def get_link(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/links")
+async def get_link(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/links")
-async def create_link(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/links")
+async def create_link(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.put("/v3/projects/project1234/links/link1234")
-async def update_link(current_user: User = Depends(get_current_active_user)):
+@router.put("/v3/projects/{project_id}/links/{link_id}")
+async def update_link(project_id: str, link_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/projects/project1234/links/link1234")
-async def delete_link(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/projects/{project_id}/links/{link_id}")
+async def delete_link(project_id: str, link_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/links/link1234/reset")
-async def reset_link(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/links/{link_id}/reset")
+async def reset_link(project_id: str, link_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/links/link1234/capture/start")
-async def start_capture_link(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/links/{link_id}/capture/start")
+async def start_capture_link(project_id: str, link_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/links/link1234/capture/stream")
-async def stream_link(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/links/{link_id}/capture/stream")
+async def stream_link(project_id: str, link_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/nodes")
-async def get_nodes(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/nodes")
+async def get_nodes(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes")
-async def create_node(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes")
+async def create_node(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/start")
-async def start_nodes(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/start")
+async def start_nodes(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/nodes/node1234")
-async def get_node(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/nodes/{node_id}")
+async def get_node(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.put("/v3/projects/project1234/nodes/node1234")
-async def update_node(current_user: User = Depends(get_current_active_user)):
+@router.put("/v3/projects/{project_id}/nodes/{node_id}")
+async def update_node(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/projects/project1234/nodes/node1234")
-async def delete_node(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/projects/{project_id}/nodes/{node_id}")
+async def delete_node(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/node1234/start")
-async def start_node(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/{node_id}/start")
+async def start_node(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/node1234/duplicate")
-async def duplicate_node(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/{node_id}/duplicate")
+async def duplicate_node(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/node1234/start")
-async def start_nodes(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/{node_id}/start")
+async def start_nodes(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-# todo check logique avec le get projects/project1234/links
-@router.get("/v3/projects/project1234/nodes/node1234/links")
-async def get_node_links(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/nodes/{node_id}/links")
+async def get_node_links(project_id: str, node_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/nodes/node1234/files/file1234")
-async def get_file(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/nodes/{node_id}/files/{file_id}")
+async def get_file(project_id: str, node_id: str, file_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/node1234/files/file1234")
-async def post_file(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/{node_id}/files/{file_id}")
+async def post_file(project_id: str, node_id: str, file_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/console/reset")
-async def reset_all_consoles(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/console/reset")
+async def reset_all_consoles(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/nodes/node1234/console/reset")
-async def reset_node_console(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/nodes/{node_id}/console/reset")
+async def reset_node_console(project_id: str, nodes_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -287,23 +286,23 @@ async def create_project(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234")
-async def get_project(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}")
+async def get_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.put("/v3/projects/project1234")
-async def update_project(current_user: User = Depends(get_current_active_user)):
+@router.put("/v3/projects/{project_id}")
+async def update_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/projects/project1234")
-async def delete_project(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/projects/{project_id}")
+async def delete_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/stats")
-async def get_project(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/stats")
+async def get_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -312,38 +311,38 @@ async def load_projects(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234")
-async def close_project(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}")
+async def close_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/export")
-async def export_project(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/export")
+async def export_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/duplicate")
-async def duplicate_project(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/duplicate")
+async def duplicate_project(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/projects/project1234/snapshots")
-async def get_snapshots(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/projects/{project_id}/snapshots")
+async def get_snapshots(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/snapshots")
-async def create_snapshot(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/snapshots")
+async def create_snapshot(project_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/projects/project1234/snapshots/snapshot1234")
-async def delete_snapshots(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/projects/{project_id}/snapshots/{snapshot_id}")
+async def delete_snapshots(project_id: str, snapshot_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/projects/project1234/snapshots/snapshot1234/restore")
-async def restore_snapshot(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/projects/{project_id}/snapshots/{snapshot_id}/restore")
+async def restore_snapshot(project_id: str, snapshot_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -352,8 +351,8 @@ async def get_symbols(current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.get("/v3/symbols/symbol1234/raw")
-async def get_symbol(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/symbols/{symbol_id}/raw")
+async def get_symbol(symbol_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
@@ -372,21 +371,21 @@ async def create_templates(current_user: User = Depends(get_current_active_user)
     return {"ok"}
 
 
-@router.get("/v3/templates/template1234")
-async def get_template(current_user: User = Depends(get_current_active_user)):
+@router.get("/v3/templates/{template_id}")
+async def get_template(template_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.delete("/v3/templates/template1234")
-async def delete_template(current_user: User = Depends(get_current_active_user)):
+@router.delete("/v3/templates/{template_id}")
+async def delete_template(template_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.put("/v3/templates/template1234")
-async def update_template(current_user: User = Depends(get_current_active_user)):
+@router.put("/v3/templates/{template_id}")
+async def update_template(template_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
 
 
-@router.post("/v3/templates/template1234/duplicate")
-async def duplicate_template(current_user: User = Depends(get_current_active_user)):
+@router.post("/v3/templates/{template_id}/duplicate")
+async def duplicate_template(template_id: str, current_user: User = Depends(get_current_active_user)):
     return {"ok"}
