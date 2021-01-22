@@ -16,7 +16,7 @@ router = APIRouter()
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token") #if v4 is realease, this has to be change
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 """
@@ -30,7 +30,8 @@ This function return True if the user exists in the database.
 """
 async def authenticate_user(username: str, password: str) -> bool:
     query = f"""SELECT PASSWORD FROM USERS WHERE NAME='{username}';"""
-    await fastapi_db.database.connect()
+    if not fastapi_db.database.is_connected:
+        await fastapi_db.database.connect()
     res = await fastapi_db.database.fetch_one(query=query)
     if not res[0]:
         return False

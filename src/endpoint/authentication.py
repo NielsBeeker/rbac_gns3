@@ -5,15 +5,15 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
-
+import logging
 from models.Token import Token
 from dependencies.authentication import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from models.User import User, Auth
 from dependencies.security import get_current_active_user, get_user_acl_from_db, get_ressource_acl_from_db
-from src.db import fastapi_db
+from db import fastapi_db
 
 router = APIRouter()
-
+log = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v3/token")
 
 @router.on_event("startup")
@@ -55,6 +55,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": form_data.username, "scopes": scope,
               }, expires_delta=access_token_expires
     )
+    log.info("The user succesfully authenticated !")
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -88,6 +89,7 @@ async def login_for_access_token1(auth: Optional[Auth] = None):
         data={"sub": auth.username, "scopes": scope,
               }, expires_delta=access_token_expires
     )
+    log.info("The user succesfully authenticated !")
     return {"access_token": access_token, "token_type": "bearer"}
 
 

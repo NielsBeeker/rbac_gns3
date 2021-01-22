@@ -7,11 +7,14 @@ from starlette.requests import Request
 from jose import JWTError, jwt
 from pydantic import ValidationError
 from dependencies.authentication import oauth2_scheme, SECRET_KEY, ALGORITHM
+import logging
 
 from models.ObjectAcl import Endpoint
 from db.fastapi_db import database
 from models.Token import TokenData
 from models.User import User
+
+log = logging.getLogger(__name__)
 
 
 """
@@ -52,6 +55,8 @@ This function return True if the scope match with the url of the endpoint.
 """
 def scope_matching(matching_scope: str, scope: str) -> bool:
     #matching scope is the endpoint url
+    matching_scope = matching_scope[4:len(matching_scope)] # permet d'ignorer le /v3 si jamais on change de version
+    scope = scope[4:len(scope)]
     ms_len = len(matching_scope)
     if len(scope) > ms_len:
         return False #if the length of the scope is longer than one of the matching scope, it can't match
@@ -149,6 +154,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
+            log.warning("the token is not own by any user")
             raise credentials_exception
         tmp_token_scopes = payload.get("scopes", []) # get user acl
 
@@ -158,23 +164,27 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
             for elt in tmp_token_scopes:
                 token_scopes.append((elt[0], elt[1], elt[2])) #creating a new list of triples
         except IndexError:
+            log.warning("A problem occurred when getting the ace from the token")
             raise credentials_exception
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
+
         raise credentials_exception
     query = f"""SELECT USER_ID FROM USERS WHERE NAME='{username}';"""
     if not database.is_connected:
         await database.connect()
     res = await database.fetch_one(query=query)
     if not res[0]:
+        log.warning("the user don't exist in the database")
         raise credentials_exception
     if not verify_permission(get_required_scopes_from_endpoint(request), token_data):
+        log.warning("the user don't have enough permission")
         raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
         )
-
+    log.msg("The user is authorized")
     return User(username=username)
 
 
